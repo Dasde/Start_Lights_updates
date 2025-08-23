@@ -1634,11 +1634,11 @@ function script.drawUI(dt)
         end)
       end
       if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
-        script.drawUI(dt)
+        slMgr.draw()
       else
         if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
           slMgr.setStartLightsVisible(true)
-          script.drawUI(dt)
+          slMgr.draw()
           if not settingsOpened then
             ui.offsetCursorY((ui.windowHeight() - 50) / 2)
             ui.offsetCursorX((ui.windowWidth() - 200) / 2)
