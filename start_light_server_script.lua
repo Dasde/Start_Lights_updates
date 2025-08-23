@@ -834,7 +834,7 @@ local AppSettings = ac.storage {
   greenLightDuration = DEFAULT_GREEN_LIGHT_DURATION, -- in seconds
   classicLightsScale = DEFAULT_SCALE,                -- default scale for the start light
   useSound = DEFAULT_USE_SOUND,                      -- default sound setting
-  classicLightsOrientation = "vertical",             -- default orientation for the start light
+  classicLightsOrientation = "horizontal",             -- default orientation for the start light
   useClassicLightsHUD = true,
   use3DLights = true,
   lightsModType = tl.LightType.DBZ,
@@ -1624,14 +1624,32 @@ function script.drawUI(dt)
     return
   end
   if SERVER_MODE then
-    ui.toolWindow("main", vec2(50, 50), settingsSize, false, true, function()
+    ui.transparentWindow("main", vec2(50, 50), settingsSize, false, true, function()
       if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
         settingsOpened = not settingsOpened
       end
       if settingsOpened then
-        script.windowSettings(dt)
+        ui.toolWindow("settings", vec2(0, 0), settingsSize, false, true, function()
+          script.windowSettings(dt)
+        end)
       end
-      slMgr.draw()
+      if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
+        script.drawUI(dt)
+      else
+        if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
+          slMgr.setStartLightsVisible(true)
+          script.drawUI(dt)
+          if not settingsOpened then
+            ui.offsetCursorY((ui.windowHeight() - 50) / 2)
+            ui.offsetCursorX((ui.windowWidth() - 200) / 2)
+            if ui.button("Show Start Lights settings...", vec2(200, 50)) then
+              settingsOpened = true
+            end
+          end
+        else
+          slMgr.setStartLightsVisible(false)
+        end
+      end
       settingsSize = AppSettings.classicLightsOrientation == "vertical" and
           vec2(math.max(80 * AppSettings.classicLightsScale, ui.getMaxCursorX()),
             math.max(300 * AppSettings.classicLightsScale, ui.getMaxCursorY()))
