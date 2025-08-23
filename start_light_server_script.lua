@@ -1647,6 +1647,7 @@ function script.drawUI(dt)
           slMgr.setStartLightsVisible(true)
           slMgr.draw()
           windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left,5))
+          ui.resetMouseDragDelta(ui.MouseButton.Left)
           if not settingsOpened then
             ui.setCursorY((hudSize.y - 50) / 2)
             ui.setCursorX((hudSize.x - 200) / 2)
