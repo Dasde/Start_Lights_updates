@@ -1619,6 +1619,7 @@ end
 
 local settingsOpened = false
 local windowSize = vec2(500, 500)
+local windowPosition = vec2(50,50)
 local settingsSize = vec2(500, 500)
 function script.drawUI(dt)
   if SERVER_MODE_AND_APP then
@@ -1631,7 +1632,7 @@ function script.drawUI(dt)
         or
         vec2(300 * AppSettings.classicLightsScale,
           80 * AppSettings.classicLightsScale)
-    ui.transparentWindow("main", vec2(50, 50), windowSize, false, true, function()
+    ui.transparentWindow("main", windowPosition, windowSize, false, true, function()
       if settingsOpened then
         ui.drawRectFilled(vec2(0,0), settingsSize, rgbm(0.4,0.4,0.4,0.5),10,ui.CornerFlags.All)
         script.windowSettings(dt)
@@ -1645,9 +1646,10 @@ function script.drawUI(dt)
         if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
           slMgr.setStartLightsVisible(true)
           slMgr.draw()
+          windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left))
           if not settingsOpened then
-            ui.offsetCursorY((hudSize.y - 50) / 2)
-            ui.offsetCursorX((hudSize.x - 200) / 2)
+            ui.setCursorY((hudSize.y - 50) / 2)
+            ui.setCursorX((hudSize.x - 200) / 2)
             if ui.button("Show Start Lights settings...", vec2(200, 50)) then
               settingsOpened = true
             end
