@@ -1,140 +1,138 @@
 local lhud = {}
 local colors = {
-    GRAY = rgbm(0.2, 0.2, 0.2, 1),
-    LIGHT_GREEN = rgbm(0, 1, 0, 1),
-    YELLOW = rgbm(1, 1, 0, 1),
-    RED = rgbm(1, 0, 0, 1),
-    GREEN = rgbm(0, 1, 0, 1),
-    WHITE = rgbm(1, 1, 1, 1),
-    BLACK = rgbm(0, 0, 0, 0.5),
-    TRANSPARENT = rgbm(0, 0, 0, 0),
-    NEON_RED = rgbm(1, 0, 0, 0.9),
-    DARK_GRAY = rgbm(0.1, 0.1, 0.1, 0.3),
+  GRAY = rgbm(0.2, 0.2, 0.2, 1),
+  LIGHT_GREEN = rgbm(0, 1, 0, 1),
+  YELLOW = rgbm(1, 1, 0, 1),
+  RED = rgbm(1, 0, 0, 1),
+  GREEN = rgbm(0, 1, 0, 1),
+  WHITE = rgbm(1, 1, 1, 1),
+  BLACK = rgbm(0, 0, 0, 0.5),
+  TRANSPARENT = rgbm(0, 0, 0, 0),
+  NEON_RED = rgbm(1, 0, 0, 0.9),
+  DARK_GRAY = rgbm(0.1, 0.1, 0.1, 0.3),
 }
 
 local light_animations = {}
 
 for i = 1, 4 do
-    light_animations[i] = {
-        alpha = 0,
-        scale = 0.5,
-        active = false
-    }
+  light_animations[i] = {
+    alpha = 0,
+    scale = 0.5,
+    active = false
+  }
 end
 
 function lhud.displayLights()
-    lhud.configureLights(1, 1, true)
-    for i = 1, 4 do
-        light_animations[i].active = true
-        light_animations[i].alpha = 1
-        light_animations[i].scale = 1
-    end
+  lhud.configureLights(1, 1, true)
+  for i = 1, 4 do
+    light_animations[i].active = true
+    light_animations[i].alpha = 1
+    light_animations[i].scale = 1
+  end
 end
 
 function lhud.hideLights()
-    lhud.configureLights(0, 0.5, false)
+  lhud.configureLights(0, 0.5, false)
 end
 
 function lhud.configureLights(alpha, scale, active)
-    for i = 1, 4 do
-        light_animations[i].alpha = alpha
-        light_animations[i].scale = scale
-        light_animations[i].active = active
-    end
+  for i = 1, 4 do
+    light_animations[i].alpha = alpha
+    light_animations[i].scale = scale
+    light_animations[i].active = active
+  end
 end
 
 function lhud.configureLight(lightId, alpha, scale, active)
-    light_animations[lightId].alpha = alpha
-    light_animations[lightId].scale = scale
-    light_animations[lightId].active = active
+  light_animations[lightId].alpha = alpha
+  light_animations[lightId].scale = scale
+  light_animations[lightId].active = active
 end
 
 function lhud.fadeInLights(dt)
-    for i = 1, 4 do
-        if light_animations[i].active then
-            light_animations[i].alpha = math.min(light_animations[i].alpha + dt * 12, 1)
-            light_animations[i].scale = math.min(light_animations[i].scale + dt * 12, 1)
-            if light_animations[i].alpha >= 1 and light_animations[i].scale >= 1 then
-                light_animations[i].active = false
-            end
-        end
+  for i = 1, 4 do
+    if light_animations[i].active then
+      light_animations[i].alpha = math.min(light_animations[i].alpha + dt * 12, 1)
+      light_animations[i].scale = math.min(light_animations[i].scale + dt * 12, 1)
+      if light_animations[i].alpha >= 1 and light_animations[i].scale >= 1 then
+        light_animations[i].active = false
+      end
     end
+  end
 end
 
 local function drawBlurredCircle(center, radius, color, blur_strength)
-    local blur_layers = 5
-    for layer = blur_layers, 1, -1 do
-        local layer_scale = 1 + (layer / blur_layers) * (blur_strength / 100)
-        local layer_alpha = color.mult * (1 - (layer - 1) / blur_layers) * 0.2
-        local blur_radius = radius * layer_scale
-        local blur_color = rgbm(color.r, color.g, color.b, layer_alpha)
-        ui.drawCircleFilled(center, blur_radius, blur_color, 64)
-    end
-    ui.drawCircleFilled(center, radius, color, 64)
+  local blur_layers = 5
+  for layer = blur_layers, 1, -1 do
+    local layer_scale = 1 + (layer / blur_layers) * (blur_strength / 100)
+    local layer_alpha = color.mult * (1 - (layer - 1) / blur_layers) * 0.2
+    local blur_radius = radius * layer_scale
+    local blur_color = rgbm(color.r, color.g, color.b, layer_alpha)
+    ui.drawCircleFilled(center, blur_radius, blur_color, 64)
+  end
+  ui.drawCircleFilled(center, radius, color, 64)
 end
 
 function lhud.draw(orientation, hud_scale, traffic_light_state, isYellowBlinking)
-    local traffic_light_size = orientation == "vertical" and vec2(80 * hud_scale, 300 * hud_scale) or
-        vec2(300 * hud_scale, 80 * hud_scale)
-    local traffic_light_pos = vec2(0, 0)
-    ui.drawRectFilled(traffic_light_pos, traffic_light_pos + traffic_light_size, colors.BLACK, 10 * hud_scale)
-    local light_radius = 30 * hud_scale
-    local light_spacing = 13 * hud_scale
-    local light_positions = {}
+  local traffic_light_size = orientation == "vertical" and vec2(80 * hud_scale, 300 * hud_scale) or
+      vec2(300 * hud_scale, 80 * hud_scale)
+  local traffic_light_pos = vec2(0, 0)
+  ui.drawRectFilled(traffic_light_pos, traffic_light_pos + traffic_light_size, colors.BLACK, 10 * hud_scale)
+  local light_radius = 30 * hud_scale
+  local light_spacing = 13 * hud_scale
+  local light_positions = {}
+  for i = 1, 4 do
+    local y = traffic_light_pos.y + (i - 1) * (light_radius * 2 + light_spacing) + light_spacing
+    local center
+    if (orientation == 'vertical') then
+      center = vec2(traffic_light_pos.x + traffic_light_size.x / 2, y + light_radius)
+    else
+      center = vec2(y + light_radius, traffic_light_size.y / 2)
+    end
+    table.insert(light_positions, center)
+  end
+  for i, center in ipairs(light_positions) do
+    ui.drawCircleFilled(center, light_radius, colors.DARK_GRAY, 64)
+  end
+
+  if not isYellowBlinking then
     for i = 1, 4 do
-        local y = traffic_light_pos.y + (i - 1) * (light_radius * 2 + light_spacing) + light_spacing
-        local center
-        if (orientation == 'vertical') then
-            center = vec2(traffic_light_pos.x + traffic_light_size.x / 2, y + light_radius)
-        else
-            center = vec2(y + light_radius, traffic_light_size.y / 2)
+      if light_animations[i].active then
+        light_animations[i].alpha = math.min(light_animations[i].alpha + ui.deltaTime() * 2, 1)
+        light_animations[i].scale = math.min(light_animations[i].scale + ui.deltaTime() * 2, 1)
+        if light_animations[i].alpha >= 1 and light_animations[i].scale >= 1 then
+          light_animations[i].active = false
         end
-        table.insert(light_positions, center)
+      end
     end
-    for i, center in ipairs(light_positions) do
-        ui.drawCircleFilled(center, light_radius, colors.DARK_GRAY, 64)
-    end
+  end
 
-    if not isYellowBlinking then
-        for i = 1, 4 do
-            if light_animations[i].active then
-                light_animations[i].alpha = math.min(light_animations[i].alpha + ui.deltaTime() * 2, 1)
-                light_animations[i].scale = math.min(light_animations[i].scale + ui.deltaTime() * 2, 1)
-                if light_animations[i].alpha >= 1 and light_animations[i].scale >= 1 then
-                    light_animations[i].active = false
-                end
-            end
+  for i, center in ipairs(light_positions) do
+    local color
+    if isYellowBlinking then
+      color = colors.YELLOW
+    else
+      if traffic_light_state < 4 then
+        if i <= traffic_light_state then
+          color = colors.RED
         end
-    end
-
-    for i, center in ipairs(light_positions) do
-        local color
-        if isYellowBlinking then
-            color = colors.YELLOW
-        else
-            if traffic_light_state < 4 then
-                if i <= traffic_light_state then
-                    color = colors.RED
-                end
-            elseif traffic_light_state == 4 then
-                if i == 4 then
-                    color = colors.GREEN
-                end
-            end
+      elseif traffic_light_state == 4 then
+        if i == 4 then
+          color = colors.GREEN
         end
-
-        if color then
-            local anim = light_animations[i]
-            local alpha = anim and anim.alpha or 1
-            local scale = anim and anim.scale or 1
-            local draw_color = rgbm(color.r, color.g, color.b, alpha)
-            local draw_radius = light_radius * scale
-            drawBlurredCircle(center, draw_radius, draw_color, 15)
-        end
+      end
     end
 
+    if color then
+      local anim = light_animations[i]
+      local alpha = anim and anim.alpha or 1
+      local scale = anim and anim.scale or 1
+      local draw_color = rgbm(color.r, color.g, color.b, alpha)
+      local draw_radius = light_radius * scale
+      drawBlurredCircle(center, draw_radius, draw_color, 15)
+    end
+  end
 end
-
 
 --- TRACK LIGHT
 
@@ -144,8 +142,8 @@ local tl = {}
 local nbLights = 3
 local lightPrefix = "go0"
 local LIGHTS_DIRECTION = {
-    top = 0,
-    bottom = 1
+  top = 0,
+  bottom = 1
 }
 local lightsDirection = LIGHTS_DIRECTION.bottom;
 local lightsOnTrack = false
@@ -161,72 +159,74 @@ local trackLightsRotation
 ---@param server_mode? boolean
 ---@return ac.SceneReference
 local function displayLights(lightType, position, rotY, server_mode)
-    local rootNode = ac.findNodes('trackRoot:yes') --'carsRoot:yes') --'trackRoot:yes')
-    local lightMesh
-    trackLightPosition = position:clone()
-    trackLightsRotation = rotY
-    if (lightType == tl.LightType.VDM) then
-        if server_mode then
-            web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/vdm_lights.zip", function (err, folder)
-                lightMesh = rootNode:loadKN5(folder .. "\\vdm_lights.kn5")
-                lightPrefix = "start_"
-                nbLights = 4
-                lightsDirection = LIGHTS_DIRECTION.bottom
-                lightMesh:setPosition(position)
-                if rotY ~= 0 then
-                    lightMesh:setRotation(vec3(0,1,0), math.rad(rotY))
-                end
-            end)
-            return
-        end
-        lightMesh = rootNode:loadKN5("content/cars/vdm_lights/vdm_lights.kn5")
-        lightPrefix = "start_"
-        nbLights = 4
-        lightsDirection = LIGHTS_DIRECTION.bottom
-    else
-        if server_mode then
-            web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/letsgo.zip", function (err, folder)
-                lightMesh = rootNode:loadKN5("assets/letsgo.kn5")
-                lightPrefix = "go0"
-                nbLights = 3
-                lightsDirection = LIGHTS_DIRECTION.top
-                lightMesh:findMeshes("Objet006"):setTransparent(true)
-                position:add(vec3(0,0.165,0))
-                lightMesh:setPosition(position)
-                if rotY ~= 0 then
-                    lightMesh:setRotation(vec3(0,1,0), math.rad(rotY))
-                end
-            end)
-            return
-        end
-        lightMesh = rootNode:loadKN5("assets/letsgo.kn5")
-        lightPrefix = "go0"
-        nbLights = 3
-        lightsDirection = LIGHTS_DIRECTION.top
-        lightMesh:findMeshes("Objet006"):setTransparent(true)
-        position:add(vec3(0,0.165,0))
+  local rootNode = ac.findNodes('trackRoot:yes')   --'carsRoot:yes') --'trackRoot:yes')
+  local lightMesh
+  trackLightPosition = position:clone()
+  trackLightsRotation = rotY
+  if (lightType == tl.LightType.VDM) then
+    if server_mode then
+      web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/vdm_lights.zip",
+        function(err, folder)
+          lightMesh = rootNode:loadKN5(folder .. "\\vdm_lights.kn5")
+          lightPrefix = "start_"
+          nbLights = 4
+          lightsDirection = LIGHTS_DIRECTION.bottom
+          lightMesh:setPosition(position)
+          if rotY ~= 0 then
+            lightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
+          end
+        end)
+      return
     end
-    lightMesh:setPosition(position)
-    if rotY ~= 0 then
-        lightMesh:setRotation(vec3(0,1,0), math.rad(rotY))
+    lightMesh = rootNode:loadKN5("content/cars/vdm_lights/vdm_lights.kn5")
+    lightPrefix = "start_"
+    nbLights = 4
+    lightsDirection = LIGHTS_DIRECTION.bottom
+  else
+    if server_mode then
+      web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/letsgo.zip",
+        function(err, folder)
+          lightMesh = rootNode:loadKN5("assets/letsgo.kn5")
+          lightPrefix = "go0"
+          nbLights = 3
+          lightsDirection = LIGHTS_DIRECTION.top
+          lightMesh:findMeshes("Objet006"):setTransparent(true)
+          position:add(vec3(0, 0.165, 0))
+          lightMesh:setPosition(position)
+          if rotY ~= 0 then
+            lightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
+          end
+        end)
+      return
     end
-    return lightMesh
+    lightMesh = rootNode:loadKN5("assets/letsgo.kn5")
+    lightPrefix = "go0"
+    nbLights = 3
+    lightsDirection = LIGHTS_DIRECTION.top
+    lightMesh:findMeshes("Objet006"):setTransparent(true)
+    position:add(vec3(0, 0.165, 0))
+  end
+  lightMesh:setPosition(position)
+  if rotY ~= 0 then
+    lightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
+  end
+  return lightMesh
 end
 
 function tl.clearSavedLights()
-    tl.removeLightMesh()
-    lightsOnTrack = false
-    local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-    if io.exists(trackIniFilename) then
-        ac.pauseFilesWatching(true)
-        os.remove(trackIniFilename)
-        ac.pauseFilesWatching(false)
-    end
+  tl.removeLightMesh()
+  lightsOnTrack = false
+  local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+  if io.exists(trackIniFilename) then
+    ac.pauseFilesWatching(true)
+    os.remove(trackIniFilename)
+    ac.pauseFilesWatching(false)
+  end
 end
 
 local function checkTrackHasLightMesh()
-    local mesh = ac.findNodes('trackRoot:yes'):findMeshes("go01")
-    return (mesh:name() ~= "")
+  local mesh = ac.findNodes('trackRoot:yes'):findMeshes("go01")
+  return (mesh:name() ~= "")
 end
 
 ---Load the online config (online extras)
@@ -234,23 +234,26 @@ end
 ---@param lightType tl.LightType
 ---@param server_mode? boolean
 local function loadOnlineConfig(config, lightType, server_mode)
-    if config then
-        local currentTrack = ac.getTrackID()
-        local currentLayout = ac.getTrackFullID()
-        for index, section in config:iterate('TRACK_START_LIGHT') do
-            --ac.log(section)
-            local track = config:get(section, "TRACK", "")
-            if track == currentTrack then
-                if trackLightMesh then
-                    tl.rotateTrackLights(config:get(section, "rot",0))
-                    tl.setTrackLightPosition(vec3(config:get(section, "x",0), config:get(section, "y",0), config:get(section, "z",0)))
-                else
-                    trackLightMesh = displayLights(lightType, vec3(config:get(section, "x",0), config:get(section, "y",0), config:get(section, "z",0)), config:get(section, "rot",0), server_mode)
-                end
-                lightsEmbedInTrack = true
-            end
+  if config then
+    local currentTrack = ac.getTrackID()
+    local currentLayout = ac.getTrackFullID()
+    for index, section in config:iterate('TRACK_START_LIGHT') do
+      --ac.log(section)
+      local track = config:get(section, "TRACK", "")
+      if track == currentTrack then
+        if trackLightMesh then
+          tl.rotateTrackLights(config:get(section, "rot", 0))
+          tl.setTrackLightPosition(vec3(config:get(section, "x", 0), config:get(section, "y", 0),
+            config:get(section, "z", 0)))
+        else
+          trackLightMesh = displayLights(lightType,
+            vec3(config:get(section, "x", 0), config:get(section, "y", 0), config:get(section, "z", 0)),
+            config:get(section, "rot", 0), server_mode)
         end
+        lightsEmbedInTrack = true
+      end
     end
+  end
 end
 
 ---Init track lights
@@ -258,47 +261,51 @@ end
 ---@param force boolean
 ---@param server_mode? boolean
 function tl.init(lightType, force, server_mode)
-    lightsOnTrack = false
-    if trackLightMesh and force then
-        trackLightMesh:dispose()
-        ---@diagnostic disable-next-line: cast-local-type
-        trackLightMesh = nil
-    end
-    if checkTrackHasLightMesh() then
-        lightPrefix = "go0"
-        ac.findNodes('trackRoot:yes'):findMeshes("Objet006"):setTransparent(true)
-        ac.applyContentConfig(-1, "[CONDITION_02]\nNAME = BLINK1\nINPUT = NONE\n[CONDITION_03]\nNAME = BLINK2\nINPUT = NONE\n[CONDITION_04]\nNAME = BLINK3\nINPUT = NONE")
-        trackLightPosition = ac.findNodes('trackRoot:yes'):findMeshes("go01"):boundingSphere()
-        --trackLightPosition = ac.findNodes('carRoot:0'):findMeshes("green"):boundingSphere()
-        trackLightPosition:add(vec3(0,-0.99788,0))
-        lightsEmbedInTrack = true
-        lightsOnTrack = true
-    else
-        lightsEmbedInTrack = false
-        local extras = ac.INIConfig.onlineExtras()
-        loadOnlineConfig(extras, lightType, server_mode)
-        if not lightsEmbedInTrack then
-            local oldTrackIniFilename = ac.getFolder(ac.FolderID.CurrentTrack) .. "/extension/" .. "track_lights.ini"
-            local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-            if io.exists(oldTrackIniFilename) then
-                ac.pauseFilesWatching(true)
-                if not io.move(oldTrackIniFilename, trackIniFilename) then
-                    os.remove(oldTrackIniFilename)
-                end
-                ac.pauseFilesWatching(false)
-            end
-            if io.exists(trackIniFilename) then
-                local trackIni = ac.INIConfig.load(trackIniFilename)
-                if trackLightMesh then
-                    tl.rotateTrackLights(trackIni:get("Position", "rot",0))
-                    tl.setTrackLightPosition(vec3(trackIni:get("Position", "x",0), trackIni:get("Position", "y",0), trackIni:get("Position", "z",0)))
-                else
-                    trackLightMesh = displayLights(lightType, vec3(trackIni:get("Position", "x",0), trackIni:get("Position", "y",0), trackIni:get("Position", "z",0)), trackIni:get("Position", "rot",0),server_mode)
-                end
-                lightsOnTrack =true
-            end
+  lightsOnTrack = false
+  if trackLightMesh and force then
+    trackLightMesh:dispose()
+    ---@diagnostic disable-next-line: cast-local-type
+    trackLightMesh = nil
+  end
+  if checkTrackHasLightMesh() then
+    lightPrefix = "go0"
+    ac.findNodes('trackRoot:yes'):findMeshes("Objet006"):setTransparent(true)
+    ac.applyContentConfig(-1,
+      "[CONDITION_02]\nNAME = BLINK1\nINPUT = NONE\n[CONDITION_03]\nNAME = BLINK2\nINPUT = NONE\n[CONDITION_04]\nNAME = BLINK3\nINPUT = NONE")
+    trackLightPosition = ac.findNodes('trackRoot:yes'):findMeshes("go01"):boundingSphere()
+    --trackLightPosition = ac.findNodes('carRoot:0'):findMeshes("green"):boundingSphere()
+    trackLightPosition:add(vec3(0, -0.99788, 0))
+    lightsEmbedInTrack = true
+    lightsOnTrack = true
+  else
+    lightsEmbedInTrack = false
+    local extras = ac.INIConfig.onlineExtras()
+    loadOnlineConfig(extras, lightType, server_mode)
+    if not lightsEmbedInTrack then
+      local oldTrackIniFilename = ac.getFolder(ac.FolderID.CurrentTrack) .. "/extension/" .. "track_lights.ini"
+      local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+      if io.exists(oldTrackIniFilename) then
+        ac.pauseFilesWatching(true)
+        if not io.move(oldTrackIniFilename, trackIniFilename) then
+          os.remove(oldTrackIniFilename)
         end
+        ac.pauseFilesWatching(false)
+      end
+      if io.exists(trackIniFilename) then
+        local trackIni = ac.INIConfig.load(trackIniFilename)
+        if trackLightMesh then
+          tl.rotateTrackLights(trackIni:get("Position", "rot", 0))
+          tl.setTrackLightPosition(vec3(trackIni:get("Position", "x", 0), trackIni:get("Position", "y", 0),
+            trackIni:get("Position", "z", 0)))
+        else
+          trackLightMesh = displayLights(lightType,
+            vec3(trackIni:get("Position", "x", 0), trackIni:get("Position", "y", 0), trackIni:get("Position", "z", 0)),
+            trackIni:get("Position", "rot", 0), server_mode)
+        end
+        lightsOnTrack = true
+      end
     end
+  end
 end
 
 -- ac.onOnlineWelcome(function (message, config)
@@ -309,43 +316,43 @@ end
 -- end)
 
 function tl.saveTrackLights()
-    local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-    local trackIni = ac.INIConfig.load(trackIniFilename)
-    ac.pauseFilesWatching(true)
-    trackIni:set("Position", "x",trackLightPosition.x)
-    trackIni:set("Position", "y",trackLightPosition.y)
-    trackIni:set("Position", "z",trackLightPosition.z)
-    trackIni:set("Position", "rot",trackLightsRotation)
-    trackIni:save()
-    ac.pauseFilesWatching(false)
+  local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+  local trackIni = ac.INIConfig.load(trackIniFilename)
+  ac.pauseFilesWatching(true)
+  trackIni:set("Position", "x", trackLightPosition.x)
+  trackIni:set("Position", "y", trackLightPosition.y)
+  trackIni:set("Position", "z", trackLightPosition.z)
+  trackIni:set("Position", "rot", trackLightsRotation)
+  trackIni:save()
+  ac.pauseFilesWatching(false)
 end
 
 function tl.displayLightMesh(lightType)
-    if (trackLightMesh) then
-        trackLightMesh:dispose()
-    end
-    local polePosition = ac.getCar(0).bodyTransform:transformPoint(vec3(0, 0, 5))
-    trackLightMesh = displayLights(lightType, polePosition, 0)
+  if (trackLightMesh) then
+    trackLightMesh:dispose()
+  end
+  local polePosition = ac.getCar(0).bodyTransform:transformPoint(vec3(0, 0, 5))
+  trackLightMesh = displayLights(lightType, polePosition, 0)
 end
 
 function tl:enableEditionMode(dt, lightType)
-    if ui.mouseDoubleClicked(ui.MouseButton.Left) then
-        local hit = vec3(0, 0, 0)
-        local ray = render.createMouseRay()
-        if physics.raycastTrack(ray.pos, ray.dir, ray.length, hit) ~= -1 then
-            trackLightPosition = hit:clone()
-            trackLightsRotation = 0
-            if lightType == tl.LightType.DBZ then
-                hit = hit:add(vec3(0,0.165,0))
-            end
-            if trackLightMesh then
-                trackLightMesh:setPosition(hit:clone())
-            else
-                trackLightMesh = displayLights(lightType,trackLightPosition,0)
-            end
-            lightsOnTrack =true
-        end
+  if ui.mouseDoubleClicked(ui.MouseButton.Left) then
+    local hit = vec3(0, 0, 0)
+    local ray = render.createMouseRay()
+    if physics.raycastTrack(ray.pos, ray.dir, ray.length, hit) ~= -1 then
+      trackLightPosition = hit:clone()
+      trackLightsRotation = 0
+      if lightType == tl.LightType.DBZ then
+        hit = hit:add(vec3(0, 0.165, 0))
+      end
+      if trackLightMesh then
+        trackLightMesh:setPosition(hit:clone())
+      else
+        trackLightMesh = displayLights(lightType, trackLightPosition, 0)
+      end
+      lightsOnTrack = true
     end
+  end
 end
 
 -- function tl.updateLightMesh(dt)
@@ -358,85 +365,85 @@ end
 -- end
 
 function tl.removeLightMesh()
-    if (not lightsEmbedInTrack and trackLightMesh) then
-        trackLightMesh:dispose()
----@diagnostic disable-next-line: cast-local-type
-        trackLightMesh = nil
-    end
+  if (not lightsEmbedInTrack and trackLightMesh) then
+    trackLightMesh:dispose()
+    ---@diagnostic disable-next-line: cast-local-type
+    trackLightMesh = nil
+  end
 end
 
 tl.TrackLightColors = {
-    green = rgb(0, 128, 32),
-    orange = rgb(251, 117, 0),
-    off = rgb(0, 0, 0)
+  green = rgb(0, 128, 32),
+  orange = rgb(251, 117, 0),
+  off = rgb(0, 0, 0)
 }
 
 ---@alias tl.LightType
 ---| `tl.LightType.DBZ` @…0.
 ---| `tl.LightType.VDM` @…1.
 tl.LightType = {
-    DBZ = 0,
-    VDM = 1
+  DBZ = 0,
+  VDM = 1
 }
 
 function tl.getLightCount()
-    return nbLights
+  return nbLights
 end
 
 function tl.getLightId(position)
-    if lightsDirection == LIGHTS_DIRECTION.top then
-        return nbLights - (position-1)
-    else
-        return position
-    end
+  if lightsDirection == LIGHTS_DIRECTION.top then
+    return nbLights - (position - 1)
+  else
+    return position
+  end
 end
 
 function tl.trackHasLightMesh()
-    return lightsOnTrack and trackLightPosition or lightsEmbedInTrack
+  return lightsOnTrack and trackLightPosition or lightsEmbedInTrack
 end
 
 function tl.trackHasEmbedLightMesh()
-    return lightsEmbedInTrack
+  return lightsEmbedInTrack
 end
 
 ---Set the light color
 ---@param lightId integer
 ---@param color rgb
 function tl.setTrackLightColor(lightId, color)
-    local mesh = ac.findNodes('trackRoot:yes'):findMeshes(lightPrefix .. lightId)
-    mesh:setMaterialProperty('ksEmissive', color)
+  local mesh = ac.findNodes('trackRoot:yes'):findMeshes(lightPrefix .. lightId)
+  mesh:setMaterialProperty('ksEmissive', color)
 end
 
 function tl.getTrackLightPosition()
-    if not trackLightPosition then return vec3() end
-    return trackLightPosition
+  if not trackLightPosition then return vec3() end
+  return trackLightPosition
 end
 
 function tl.setTrackLightPosition(pos)
-    trackLightPosition = pos
-    if trackLightMesh then
-        trackLightMesh:setPosition(pos)
-    end
+  trackLightPosition = pos
+  if trackLightMesh then
+    trackLightMesh:setPosition(pos)
+  end
 end
 
 function tl.getTrackLightsRotation()
-    if not trackLightsRotation then return 0 end
-    return trackLightsRotation
+  if not trackLightsRotation then return 0 end
+  return trackLightsRotation
 end
 
 function tl.setTrackLightsRotation(angle)
-    trackLightsRotation = angle
+  trackLightsRotation = angle
 end
 
 function tl.rotateTrackLights(angle)
-    trackLightsRotation = angle
-    trackLightMesh:setRotation(vec3(0,1,0), math.rad(angle))
+  trackLightsRotation = angle
+  trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(angle))
 end
 
 function tl.turnOffLights()
-    for i = 1, nbLights+1, 1 do
-        tl.setTrackLightColor(i, tl.TrackLightColors.off)
-    end
+  for i = 1, nbLights + 1, 1 do
+    tl.setTrackLightColor(i, tl.TrackLightColors.off)
+  end
 end
 
 --- START LIGHT MANAGER
@@ -447,42 +454,43 @@ local orientation = 'vertical' -- 'vertical' or 'horizontal'
 local sendChatMessage = false
 local TLKey = ac.getCarID(0) .. "_trafficLights"
 local TLSharedData = {
-    ac.StructItem.key(TLKey .. "_" .. 0),
-    Connected = ac.StructItem.boolean(),
-    Started = ac.StructItem.boolean(),
-    Light1On = ac.StructItem.boolean(),
-    Light2On = ac.StructItem.boolean(),
-    Light3On = ac.StructItem.boolean(),
-    Light4On = ac.StructItem.boolean(),
-    YellowBlinking = ac.StructItem.boolean(),
+  ac.StructItem.key(TLKey .. "_" .. 0),
+  Connected = ac.StructItem.boolean(),
+  Started = ac.StructItem.boolean(),
+  Light1On = ac.StructItem.boolean(),
+  Light2On = ac.StructItem.boolean(),
+  Light3On = ac.StructItem.boolean(),
+  Light4On = ac.StructItem.boolean(),
+  YellowBlinking = ac.StructItem.boolean(),
 }
 TLightsConnection = ac.connect(TLSharedData, false, ac.SharedNamespace.Shared)
 TLightsConnection.Connected = true
 
 function slMgr.setOrientation(new_orientation)
-    if new_orientation == 'vertical' or new_orientation == 'horizontal' then
-        orientation = new_orientation
-    else
-        error("Invalid orientation. Use 'vertical' or 'horizontal'.")
-    end
+  if new_orientation == 'vertical' or new_orientation == 'horizontal' then
+    orientation = new_orientation
+  else
+    error("Invalid orientation. Use 'vertical' or 'horizontal'.")
+  end
 end
+
 local modType
 function slMgr.set3DModType(type)
-    modType = type
+  modType = type
 end
 
 local sound = nil
 local function resetSoundsAndPlay(soundName)
-    if sound then
-        sound:stop()
-        sound:dispose()
-    end
-    local soundPath = "sounds/" .. soundName .. ".mp3"
-    sound = ac.AudioEvent.fromFile({ filename = soundPath, use3D = false, loop = false }, false)
-    sound.cameraExteriorMultiplier = 1
-    sound.cameraInteriorMultiplier = 1
-    sound.cameraTrackMultiplier = 1
-    sound:start()
+  if sound then
+    sound:stop()
+    sound:dispose()
+  end
+  local soundPath = "sounds/" .. soundName .. ".mp3"
+  sound = ac.AudioEvent.fromFile({ filename = soundPath, use3D = false, loop = false }, false)
+  sound.cameraExteriorMultiplier = 1
+  sound.cameraInteriorMultiplier = 1
+  sound.cameraTrackMultiplier = 1
+  sound:start()
 end
 
 local currentTime = 0
@@ -513,300 +521,300 @@ local trackLightEdition = false
 ---@param chatMessage boolean
 ---@param mod3d boolean
 ---@param serverMode? boolean
-function slMgr.init(classicLightsScale, sound, classicLightsOrientation, lightsModType, chatMessage,mod3d, serverMode)
-    slMgr.setScale(classicLightsScale)
-    slMgr.setUseSound(sound)
-    slMgr.setOrientation(classicLightsOrientation)
-    slMgr.set3DModType(lightsModType)
-    slMgr.setSendChatMessage(chatMessage)
-    slMgr.setUse3DLights(mod3d)
-    tl.init(lightsModType, false, serverMode)
+function slMgr.init(classicLightsScale, sound, classicLightsOrientation, lightsModType, chatMessage, mod3d, serverMode)
+  slMgr.setScale(classicLightsScale)
+  slMgr.setUseSound(sound)
+  slMgr.setOrientation(classicLightsOrientation)
+  slMgr.set3DModType(lightsModType)
+  slMgr.setSendChatMessage(chatMessage)
+  slMgr.setUse3DLights(mod3d)
+  tl.init(lightsModType, false, serverMode)
 end
 
 function slMgr.setUseSound(enabled)
-    useSound = enabled
+  useSound = enabled
 end
 
 function slMgr.setUseClassicLightsHUD(enabled)
-    useClassicLightsHUD = enabled
+  useClassicLightsHUD = enabled
 end
 
 function slMgr.setUse3DLights(enabled)
-    use3DLights = enabled
+  use3DLights = enabled
 end
 
 function slMgr.setSendChatMessage(enabled)
-    sendChatMessage = enabled
+  sendChatMessage = enabled
 end
 
 function slMgr.trackLightEdition(enabled)
-    trackLightEdition = enabled
+  trackLightEdition = enabled
 end
 
 function slMgr.rotateTrackLights(angle)
-    tl.rotateTrackLights(angle)
+  tl.rotateTrackLights(angle)
 end
 
 function slMgr.getTrackLightsRotation()
-    return tl.getTrackLightsRotation()
+  return tl.getTrackLightsRotation()
 end
 
 function slMgr.setAndSaveTrackLights(pos, rotation)
-    if tl.getTrackLightPosition() == pos and tl.getTrackLightsRotation() == rotation then return end
-    tl.setTrackLightPosition(pos)
-    tl.setTrackLightsRotation(rotation)
-    tl.saveTrackLights()
-    if not tl.trackHasLightMesh then
-        tl.init(modType, false)
-    end
+  if tl.getTrackLightPosition() == pos and tl.getTrackLightsRotation() == rotation then return end
+  tl.setTrackLightPosition(pos)
+  tl.setTrackLightsRotation(rotation)
+  tl.saveTrackLights()
+  if not tl.trackHasLightMesh then
+    tl.init(modType, false)
+  end
 end
 
 function slMgr.saveTrackLights()
-    tl.saveTrackLights()
+  tl.saveTrackLights()
 end
 
 function slMgr.reloadTrackLights(force)
-    tl.init(modType, force)
+  tl.init(modType, force)
 end
 
 function slMgr.clearSavedLights()
-    tl.clearSavedLights()
+  tl.clearSavedLights()
 end
 
 function slMgr.SetIsYellowBlinking(isBlinking)
-    isYellowBlinking = isBlinking
-    if isBlinking then
-        blinkTimer = 0
-        lhud.displayLights()
-        start_lights_running = true
-        TLightsConnection.YellowBlinking = true
-        if not tl.trackHasLightMesh() and use3DLights then
-            tl.displayLightMesh(modType)
-        end
-        tl.setTrackLightColor(1, tl.TrackLightColors.orange)
-        tl.setTrackLightColor(2, tl.TrackLightColors.orange)
-        tl.setTrackLightColor(3, tl.TrackLightColors.orange)
-        if (tl.getLightCount() > 3) then
-            tl.setTrackLightColor(4, tl.TrackLightColors.orange)
-        end
-        start_lights_state = 0
-        start_lights_timer = 0
-        if useSound then
-            resetSoundsAndPlay("longBeep")
-        end
-    else
-        start_lights_running = false
-        TLightsConnection.YellowBlinking = false
-        tl.setTrackLightColor(1, tl.TrackLightColors.off)
-        tl.setTrackLightColor(2, tl.TrackLightColors.off)
-        tl.setTrackLightColor(3, tl.TrackLightColors.off)
-        if (tl.getLightCount() > 3) then
-            tl.setTrackLightColor(4, tl.TrackLightColors.off)
-        end
-        if not tl.trackHasLightMesh() then
-            tl.removeLightMesh()
-        end
+  isYellowBlinking = isBlinking
+  if isBlinking then
+    blinkTimer = 0
+    lhud.displayLights()
+    start_lights_running = true
+    TLightsConnection.YellowBlinking = true
+    if not tl.trackHasLightMesh() and use3DLights then
+      tl.displayLightMesh(modType)
     end
-    TLightsConnection.Started = false
-    TLightsConnection.Light1On = false
-    TLightsConnection.Light2On = false
-    TLightsConnection.Light3On = false
-    TLightsConnection.Light4On = false
+    tl.setTrackLightColor(1, tl.TrackLightColors.orange)
+    tl.setTrackLightColor(2, tl.TrackLightColors.orange)
+    tl.setTrackLightColor(3, tl.TrackLightColors.orange)
+    if (tl.getLightCount() > 3) then
+      tl.setTrackLightColor(4, tl.TrackLightColors.orange)
+    end
+    start_lights_state = 0
+    start_lights_timer = 0
+    if useSound then
+      resetSoundsAndPlay("longBeep")
+    end
+  else
+    start_lights_running = false
+    TLightsConnection.YellowBlinking = false
+    tl.setTrackLightColor(1, tl.TrackLightColors.off)
+    tl.setTrackLightColor(2, tl.TrackLightColors.off)
+    tl.setTrackLightColor(3, tl.TrackLightColors.off)
+    if (tl.getLightCount() > 3) then
+      tl.setTrackLightColor(4, tl.TrackLightColors.off)
+    end
+    if not tl.trackHasLightMesh() then
+      tl.removeLightMesh()
+    end
+  end
+  TLightsConnection.Started = false
+  TLightsConnection.Light1On = false
+  TLightsConnection.Light2On = false
+  TLightsConnection.Light3On = false
+  TLightsConnection.Light4On = false
 end
 
 function slMgr.isYellowBlinking()
-    return isYellowBlinking
+  return isYellowBlinking
 end
 
 function slMgr.isStartLightsActive()
-    return start_lights_running
+  return start_lights_running
 end
 
 function slMgr.setStartLightsVisible(visible)
-    show_start_lights = visible
+  show_start_lights = visible
 end
 
 function slMgr.stopStartLights()
-    lhud.hideLights()
-    start_lights_running = false
-    TLightsConnection.Started = false
-    TLightsConnection.Light1On = false
-    TLightsConnection.Light2On = false
-    TLightsConnection.Light3On = false
-    TLightsConnection.Light4On = false
-    tl.turnOffLights()
-    start_lights_state = 0
-    start_lights_timer = 0
-    show_start_lights = false
+  lhud.hideLights()
+  start_lights_running = false
+  TLightsConnection.Started = false
+  TLightsConnection.Light1On = false
+  TLightsConnection.Light2On = false
+  TLightsConnection.Light3On = false
+  TLightsConnection.Light4On = false
+  tl.turnOffLights()
+  start_lights_state = 0
+  start_lights_timer = 0
+  show_start_lights = false
 end
 
 function slMgr.triggerStartLights(greenDuration, _isInitiator)
-    isInitiator = _isInitiator
-    if greenDuration then
-        greenLightDuration = greenDuration
-    else
-        greenLightDuration = 2 -- default duration if not provided
-    end
-    start_lights_running = true
-    TLightsConnection.Started = true
-    TLightsConnection.Light1On = false
-    TLightsConnection.Light2On = false
-    TLightsConnection.Light3On = false
-    TLightsConnection.Light4On = false
-    start_lights_state = 0
-    start_lights_timer = 0
-    show_start_lights = true
+  isInitiator = _isInitiator
+  if greenDuration then
+    greenLightDuration = greenDuration
+  else
+    greenLightDuration = 2     -- default duration if not provided
+  end
+  start_lights_running = true
+  TLightsConnection.Started = true
+  TLightsConnection.Light1On = false
+  TLightsConnection.Light2On = false
+  TLightsConnection.Light3On = false
+  TLightsConnection.Light4On = false
+  start_lights_state = 0
+  start_lights_timer = 0
+  show_start_lights = true
 
-    if not tl.trackHasLightMesh() and use3DLights then
-        tl.displayLightMesh(modType)
-    end
+  if not tl.trackHasLightMesh() and use3DLights then
+    tl.displayLightMesh(modType)
+  end
 
-    lhud.hideLights()
+  lhud.hideLights()
 
-    greenLightTimer = 0
-    isYellowBlinking = false
-    blinkTimer = 0
+  greenLightTimer = 0
+  isYellowBlinking = false
+  blinkTimer = 0
 end
 
 function slMgr.updateStartLights(dt)
-    if trackLightEdition then
-        tl:enableEditionMode(dt, modType)
-    end
-    if not start_lights_running then
-        return
-    end
-    if isYellowBlinking then
-        show_start_lights = true
-        blinkTimer = blinkTimer + dt
-        if blinkTimer >= blinkInterval then
-            blinkTimer = 0
-            blinkLightsOn = not blinkLightsOn
-            local newAlpha = blinkLightsOn and 0 or 1
-            if newAlpha == 1 and useSound then
-                resetSoundsAndPlay("longBeep")
-            end
+  if trackLightEdition then
+    tl:enableEditionMode(dt, modType)
+  end
+  if not start_lights_running then
+    return
+  end
+  if isYellowBlinking then
+    show_start_lights = true
+    blinkTimer = blinkTimer + dt
+    if blinkTimer >= blinkInterval then
+      blinkTimer = 0
+      blinkLightsOn = not blinkLightsOn
+      local newAlpha = blinkLightsOn and 0 or 1
+      if newAlpha == 1 and useSound then
+        resetSoundsAndPlay("longBeep")
+      end
 
-            lhud.configureLights(newAlpha, 1, true)
-            tl.setTrackLightColor(1, newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
-            tl.setTrackLightColor(2, newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
-            tl.setTrackLightColor(3, newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
+      lhud.configureLights(newAlpha, 1, true)
+      tl.setTrackLightColor(1, newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
+      tl.setTrackLightColor(2, newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
+      tl.setTrackLightColor(3, newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
+    end
+  else
+    if start_lights_state < 4 then
+      start_lights_timer = start_lights_timer + dt
+
+      if start_lights_timer >= 1 then
+        start_lights_timer = 0
+        start_lights_state = start_lights_state + 1
+        if useSound then
+          if start_lights_state < 4 then
+            resetSoundsAndPlay("shortBeep")
+          else
+            resetSoundsAndPlay("longBeep")
+          end
         end
+        if sendChatMessage and isInitiator then
+          if start_lights_state < 4 then
+            ac.sendChatMessage(string.format("%d", start_lights_state))
+          else
+            ac.sendChatMessage("Go!")
+          end
+        end
+        if start_lights_state <= 4 then
+          lhud.configureLight(start_lights_state, 0, 0.5, true)
+        else
+          start_lights_running = false
+          start_lights_state = 0
+          start_lights_timer = 0
+        end
+      end
+    end
+    show_start_lights = start_lights_running
+    lhud.fadeInLights(dt)
+    if start_lights_state == 4 then
+      greenLightTimer = greenLightTimer + dt
+      if greenLightTimer >= greenLightDuration then
+        start_lights_state = 5
+        lhud.hideLights()         -- scale 1 ?
+        start_lights_running = false
+        TLightsConnection.Started = false
+        if not tl.trackHasLightMesh() then
+          tl.removeLightMesh()
+        end
+      end
+    end
+    if start_lights_state >= 1 and start_lights_state < 4 then
+      TLightsConnection.Light1On = true
+      tl.setTrackLightColor(tl.getLightId(1), tl.TrackLightColors.orange)
     else
-        if start_lights_state < 4 then
-            start_lights_timer = start_lights_timer + dt
-
-            if start_lights_timer >= 1 then
-                start_lights_timer = 0
-                start_lights_state = start_lights_state + 1
-                if useSound then
-                    if start_lights_state < 4 then
-                        resetSoundsAndPlay("shortBeep")
-                    else
-                        resetSoundsAndPlay("longBeep")
-                    end
-                end
-                if sendChatMessage and isInitiator then
-                    if start_lights_state<4 then
-                        ac.sendChatMessage(string.format("%d", start_lights_state))
-                    else
-                        ac.sendChatMessage("Go!")
-                    end
-                end
-                if start_lights_state <= 4 then
-                    lhud.configureLight(start_lights_state, 0, 0.5, true)
-                else
-                    start_lights_running = false
-                    start_lights_state = 0
-                    start_lights_timer = 0
-                end
-            end
-        end
-        show_start_lights = start_lights_running
-        lhud.fadeInLights(dt)
-        if start_lights_state == 4 then
-            greenLightTimer = greenLightTimer + dt
-            if greenLightTimer >= greenLightDuration then
-                start_lights_state = 5
-                lhud.hideLights() -- scale 1 ?
-                start_lights_running = false
-                TLightsConnection.Started = false
-                if not tl.trackHasLightMesh() then
-                    tl.removeLightMesh()
-                end
-            end
-        end
-        if start_lights_state >= 1 and start_lights_state < 4 then
-            TLightsConnection.Light1On = true
-            tl.setTrackLightColor(tl.getLightId(1), tl.TrackLightColors.orange)
-        else
-            TLightsConnection.Light1On = false
-            tl.setTrackLightColor(tl.getLightId(1), tl.TrackLightColors.off)
-        end
-        if start_lights_state >= 2 and start_lights_state < 4 then
-            TLightsConnection.Light2On = true
-            tl.setTrackLightColor(tl.getLightId(2), tl.TrackLightColors.orange)
-        else
-            TLightsConnection.Light2On = false
-            tl.setTrackLightColor(tl.getLightId(2), tl.TrackLightColors.off)
-        end
-        if start_lights_state >= 3 and start_lights_state < 4 then
-            TLightsConnection.Light3On = true
-            tl.setTrackLightColor(tl.getLightId(3), tl.TrackLightColors.orange)
-        else
-            TLightsConnection.Light3On = false
-            tl.setTrackLightColor(tl.getLightId(3), tl.TrackLightColors.off)
-        end
-        local nbLights = tl.getLightCount()
-        if start_lights_state == 4 then
-            TLightsConnection.Light4On = true
-            if (nbLights<4) then
-                tl.setTrackLightColor(1, tl.TrackLightColors.green)
-                tl.setTrackLightColor(2, tl.TrackLightColors.green)
-                tl.setTrackLightColor(3, tl.TrackLightColors.green)
-            else
-                tl.setTrackLightColor(tl.getLightId(4), tl.TrackLightColors.green)
-            end
-        else
-            TLightsConnection.Light4On = false
-            if (nbLights>3) then
-                tl.setTrackLightColor(tl.getLightId(4), tl.TrackLightColors.off)
-            end
-        end
+      TLightsConnection.Light1On = false
+      tl.setTrackLightColor(tl.getLightId(1), tl.TrackLightColors.off)
     end
+    if start_lights_state >= 2 and start_lights_state < 4 then
+      TLightsConnection.Light2On = true
+      tl.setTrackLightColor(tl.getLightId(2), tl.TrackLightColors.orange)
+    else
+      TLightsConnection.Light2On = false
+      tl.setTrackLightColor(tl.getLightId(2), tl.TrackLightColors.off)
+    end
+    if start_lights_state >= 3 and start_lights_state < 4 then
+      TLightsConnection.Light3On = true
+      tl.setTrackLightColor(tl.getLightId(3), tl.TrackLightColors.orange)
+    else
+      TLightsConnection.Light3On = false
+      tl.setTrackLightColor(tl.getLightId(3), tl.TrackLightColors.off)
+    end
+    local nbLights = tl.getLightCount()
+    if start_lights_state == 4 then
+      TLightsConnection.Light4On = true
+      if (nbLights < 4) then
+        tl.setTrackLightColor(1, tl.TrackLightColors.green)
+        tl.setTrackLightColor(2, tl.TrackLightColors.green)
+        tl.setTrackLightColor(3, tl.TrackLightColors.green)
+      else
+        tl.setTrackLightColor(tl.getLightId(4), tl.TrackLightColors.green)
+      end
+    else
+      TLightsConnection.Light4On = false
+      if (nbLights > 3) then
+        tl.setTrackLightColor(tl.getLightId(4), tl.TrackLightColors.off)
+      end
+    end
+  end
 end
 
 function slMgr.draw()
-    if show_start_lights and useClassicLightsHUD then
-        lhud.draw(orientation, hud_scale, start_lights_state, isYellowBlinking)
-    end
+  if show_start_lights and useClassicLightsHUD then
+    lhud.draw(orientation, hud_scale, start_lights_state, isYellowBlinking)
+  end
 end
 
 function slMgr.drawMiniHUD()
-    lhud.draw("horizontal", 1.02, start_lights_state, isYellowBlinking)
+  lhud.draw("horizontal", 1.02, start_lights_state, isYellowBlinking)
 end
 
 function slMgr.setScale(scale)
-    hud_scale = scale
+  hud_scale = scale
 end
 
 function slMgr.getScale()
-    return hud_scale
+  return hud_scale
 end
 
 function slMgr.updateTime(dt)
-    currentTime = currentTime + dt
+  currentTime = currentTime + dt
 end
 
 function slMgr.trackHasLightMesh()
-    return tl.trackHasLightMesh()
+  return tl.trackHasLightMesh()
 end
 
 function slMgr.trackHasEmbedLightMesh()
-    return tl.trackHasEmbedLightMesh()
+  return tl.trackHasEmbedLightMesh()
 end
 
 function slMgr.getTrackLightPosition()
-    return tl.getTrackLightPosition()
+  return tl.getTrackLightPosition()
 end
 
 --- START LIGHTS
@@ -859,7 +867,7 @@ slMgr.init(AppSettings.classicLightsScale, AppSettings.useSound, AppSettings.cla
 if not SERVER_MODE then
   update.init("Start_Lights", "https://raw.githubusercontent.com/Dasde/Start_Lights_updates/refs/heads/main/manifest.ini",
     "https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/Start_Lights.zip")
-  update.checkForUpdate()  
+  update.checkForUpdate()
 end
 -- local triggerMessage = "[Start Lights] Get Ready!"
 local triggerStartLightsButton = ac.ControlButton('Start_Lights_TRIGGER_START_LIGHTS',
@@ -1495,10 +1503,10 @@ function script.windowSettings(dt)
           end
           ui.sameLine()
         end
-  
+
         --ui.setCursorX(ui.getCursorX() +
         -- ((ui.windowWidth() - ui.getCursorX() - 300 + (editionMode and 0 or -BUTTON_SIZE.x - 40)) / 2))
-  
+
         if not slMgr.trackHasEmbedLightMesh() then
           if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
             local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
@@ -1579,6 +1587,7 @@ function script.windowSettings(dt)
 end
 
 function script.resizeWindowMain()
+  if SERVER_MODE then return end
   local size = AppSettings.classicLightsOrientation == "vertical" and
       vec2(math.max(80 * AppSettings.classicLightsScale, 200), math.max(300 * AppSettings.classicLightsScale, 50)) or
       vec2(math.max(300 * AppSettings.classicLightsScale, 200), math.max(80 * AppSettings.classicLightsScale, 50))
@@ -1609,23 +1618,27 @@ function script.windowMain(dt)
 end
 
 local settingsOpened = false
-local settingsSize = vec2(500,500)
+local settingsSize = vec2(500, 500)
 function script.drawUI(dt)
   if SERVER_MODE_AND_APP then
     return
   end
   if SERVER_MODE then
-    ui.toolWindow("main", vec2(50,50), settingsSize, false, true,function ()
-      if ui.iconButton(ui.Icons.TrafficLight, vec2(32,32)) then
+    ui.toolWindow("main", vec2(50, 50), settingsSize, false, true, function()
+      if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
         settingsOpened = not settingsOpened
       end
       if settingsOpened then
         script.windowSettings(dt)
       end
       slMgr.draw()
-      settingsSize = vec2(ui.getMaxCursorX(), ui.getMaxCursorY())
+      settingsSize = AppSettings.classicLightsOrientation == "vertical" and
+          vec2(math.max(80 * AppSettings.classicLightsScale, ui.getMaxCursorX()),
+            math.max(300 * AppSettings.classicLightsScale, ui.getMaxCursorY()))
+          or
+          vec2(math.max(300 * AppSettings.classicLightsScale, ui.getMaxCursorX()),
+            math.max(80 * AppSettings.classicLightsScale, ui.getMaxCursorY()))
     end)
-
   else
     slMgr.draw()
   end
