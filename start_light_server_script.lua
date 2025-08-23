@@ -167,7 +167,7 @@ local function displayLights(lightType, position, rotY, server_mode)
     trackLightsRotation = rotY
     if (lightType == tl.LightType.VDM) then
         if server_mode then
-            web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/blob/main/assets/vdm_lights.zip", function (err, folder)
+            web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/vdm_lights.zip", function (err, folder)
                 lightMesh = rootNode:loadKN5(folder .. "\\vdm_lights.kn5")
                 lightPrefix = "start_"
                 nbLights = 4
@@ -185,7 +185,7 @@ local function displayLights(lightType, position, rotY, server_mode)
         lightsDirection = LIGHTS_DIRECTION.bottom
     else
         if server_mode then
-            web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/letsgo.kn5", function (err, folder)
+            web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/letsgo.zip", function (err, folder)
                 lightMesh = rootNode:loadKN5("assets/letsgo.kn5")
                 lightPrefix = "go0"
                 nbLights = 3
