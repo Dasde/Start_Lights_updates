@@ -1629,7 +1629,7 @@ function script.drawUI(dt)
         settingsOpened = not settingsOpened
       end
       if settingsOpened then
-        ui.toolWindow("settings", vec2(0, 0), settingsSize, false, true, function()
+        ui.toolWindow("settings", vec2(50, 50), settingsSize, false, true, function()
           script.windowSettings(dt)
         end)
       end
