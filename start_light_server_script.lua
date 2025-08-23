@@ -1646,7 +1646,7 @@ function script.drawUI(dt)
         if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
           slMgr.setStartLightsVisible(true)
           slMgr.draw()
-          windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left))
+          windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left,5))
           if not settingsOpened then
             ui.setCursorY((hudSize.y - 50) / 2)
             ui.setCursorX((hudSize.x - 200) / 2)
