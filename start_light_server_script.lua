@@ -1630,7 +1630,7 @@ function script.drawUI(dt)
         settingsOpened = not settingsOpened
       end
       if settingsOpened then
-        ui.drawRectFilled(vec2(0,0), settingsSize, rgbm.new(rgbm.colors.GRAY, 0.2), 5)
+        ui.drawRectFilled(vec2(0,0), settingsSize, rgbm(0.4,0.4,0.4,0.5))
         script.windowSettings(dt)
       end
       if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
