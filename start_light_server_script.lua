@@ -839,6 +839,8 @@ local AppSettings = ac.storage {
   use3DLights = true,
   lightsModType = tl.LightType.DBZ,
   sendChatMessage = true,
+  appPositionX = 50,
+  appPositionY = 50
 }
 local competitionMode = false ---@type boolean
 local grantedUsers = table.new(5, 5)
@@ -1122,7 +1124,6 @@ end, ac.SharedNamespace.Shared)
 requestLightsData({})
 
 local function onStartLights()
-  do return end
   if (sim.isOnlineRace) then
     if competitionMode then
       if (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
@@ -1618,8 +1619,8 @@ function script.windowMain(dt)
 end
 
 local settingsOpened = false
+local windowPosition = vec2(AppSettings.appPositionX, AppSettings.appPositionY)
 local windowSize = vec2(500, 500)
-local windowPosition = vec2(50,50)
 local settingsSize = vec2(500, 500)
 function script.drawUI(dt)
   if SERVER_MODE_AND_APP then
@@ -1652,6 +1653,8 @@ function script.drawUI(dt)
         if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
           ui.setMouseCursor(ui.MouseCursor.Hand)
           windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left,5))
+          AppSettings.appPositionX = windowPosition.x
+          AppSettings.appPositionY = windowPosition.y
           ui.resetMouseDragDelta(ui.MouseButton.Left)
           if not settingsOpened then
             ui.setCursorY((hudSize.y - 50) / 2)
