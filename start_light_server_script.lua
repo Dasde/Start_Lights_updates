@@ -1689,6 +1689,9 @@ function script.update(dt)
   if SERVER_MODE_AND_APP then
     return
   end
+  if SERVER_MODE and ac.isLuaAppRunning("Start_Lights") then
+    SERVER_MODE_AND_APP = true
+  end
   isPaused = ac.getGameDeltaT() == 0
   if sim.isReplayActive then
     reloadReplayData()
