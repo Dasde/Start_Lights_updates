@@ -1618,21 +1618,20 @@ function script.windowMain(dt)
 end
 
 local settingsOpened = false
+local windowSize = vec2(500, 500)
 local settingsSize = vec2(500, 500)
 function script.drawUI(dt)
   if SERVER_MODE_AND_APP then
     return
   end
   if SERVER_MODE then
-    ui.transparentWindow("main", vec2(50, 50), settingsSize, false, true, function()
+    ui.transparentWindow("main", vec2(50, 50), windowSize, false, true, function()
       if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
         settingsOpened = not settingsOpened
       end
       if settingsOpened then
+        ui.drawRectFilled(vec2(0,0), settingsSize, rgbm.new(colors.GRAY, 0.5))
         script.windowSettings(dt)
-        -- ui.toolWindow("settings", vec2(50, 50), settingsSize, false, true, function()
-        --   script.windowSettings(dt)
-        -- end)
       end
       if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
         slMgr.draw()
@@ -1651,7 +1650,8 @@ function script.drawUI(dt)
           slMgr.setStartLightsVisible(false)
         end
       end
-      settingsSize = AppSettings.classicLightsOrientation == "vertical" and
+      settingsSize = vec2(ui.getMaxCursorX(), ui.getMaxCursorY())
+      windowSize = AppSettings.classicLightsOrientation == "vertical" and
           vec2(math.max(80 * AppSettings.classicLightsScale, ui.getMaxCursorX()),
             math.max(300 * AppSettings.classicLightsScale, ui.getMaxCursorY()))
           or
