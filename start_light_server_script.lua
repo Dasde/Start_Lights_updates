@@ -1629,9 +1629,12 @@ function script.drawUI(dt)
         settingsOpened = not settingsOpened
       end
       if settingsOpened then
-        ui.toolWindow("settings", vec2(50, 50), settingsSize, false, true, function()
+        ui.childWindow("settings", settingsSize, function()
           script.windowSettings(dt)
         end)
+        -- ui.toolWindow("settings", vec2(50, 50), settingsSize, false, true, function()
+        --   script.windowSettings(dt)
+        -- end)
       end
       if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
         slMgr.draw()
