@@ -1626,6 +1626,7 @@ function script.drawUI(dt)
     return
   end
   if SERVER_MODE then
+    ui.restoreCursor()
     local hudSize = AppSettings.classicLightsOrientation == "vertical" and
         vec2(80 * AppSettings.classicLightsScale,
           300 * AppSettings.classicLightsScale)
@@ -1643,7 +1644,9 @@ function script.drawUI(dt)
       if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
         slMgr.draw()
       else
+        slMgr.setStartLightsVisible(false)
         if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
+          ui.setMouseCursor(ui.MouseCursor.Hand)
           windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left,5))
           ui.resetMouseDragDelta(ui.MouseButton.Left)
           if not settingsOpened then
@@ -1653,8 +1656,6 @@ function script.drawUI(dt)
               settingsOpened = true
             end
           end
-        else
-          slMgr.setStartLightsVisible(false)
         end
       end
       settingsSize = vec2(ui.getMaxCursorX(), ui.getMaxCursorY())
