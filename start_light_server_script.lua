@@ -1627,7 +1627,7 @@ function script.drawUI(dt)
   if SERVER_MODE then
     ui.transparentWindow("main", vec2(50, 50), windowSize, false, true, function()
       if settingsOpened then
-        ui.drawRectFilled(vec2(0,0), settingsSize, rgbm(0.4,0.4,0.4,0.5))
+        ui.drawRectFilled(vec2(0,0), settingsSize, rgbm(0.4,0.4,0.4,0.5),5)
         script.windowSettings(dt)
       end
       if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
