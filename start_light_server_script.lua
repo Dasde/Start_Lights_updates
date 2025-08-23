@@ -1625,9 +1625,15 @@ function script.drawUI(dt)
     return
   end
   if SERVER_MODE then
+    local hudSize = AppSettings.classicLightsOrientation == "vertical" and
+        vec2(80 * AppSettings.classicLightsScale,
+          300 * AppSettings.classicLightsScale)
+        or
+        vec2(300 * AppSettings.classicLightsScale,
+          80 * AppSettings.classicLightsScale)
     ui.transparentWindow("main", vec2(50, 50), windowSize, false, true, function()
       if settingsOpened then
-        ui.drawRectFilled(vec2(0,0), settingsSize, rgbm(0.4,0.4,0.4,0.5),5)
+        ui.drawRectFilled(vec2(0,0), settingsSize, rgbm(0.4,0.4,0.4,0.5),10,ui.CornerFlags.All)
         script.windowSettings(dt)
       end
       if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
@@ -1640,8 +1646,8 @@ function script.drawUI(dt)
           slMgr.setStartLightsVisible(true)
           slMgr.draw()
           if not settingsOpened then
-            ui.offsetCursorY((ui.windowHeight() - 50) / 2)
-            ui.offsetCursorX((ui.windowWidth() - 200) / 2)
+            ui.offsetCursorY((hudSize.y - 50) / 2)
+            ui.offsetCursorX((hudSize.x - 200) / 2)
             if ui.button("Show Start Lights settings...", vec2(200, 50)) then
               settingsOpened = true
             end
@@ -1651,12 +1657,7 @@ function script.drawUI(dt)
         end
       end
       settingsSize = vec2(ui.getMaxCursorX(), ui.getMaxCursorY())
-      windowSize = AppSettings.classicLightsOrientation == "vertical" and
-          vec2(math.max(80 * AppSettings.classicLightsScale, ui.getMaxCursorX()),
-            math.max(300 * AppSettings.classicLightsScale, ui.getMaxCursorY()))
-          or
-          vec2(math.max(300 * AppSettings.classicLightsScale, ui.getMaxCursorX()),
-            math.max(80 * AppSettings.classicLightsScale, ui.getMaxCursorY()))
+      windowSize = vec2(math.max(hudSize.x, ui.getMaxCursorX()), math.max(hudSize.y, ui.getMaxCursorY()))
     end)
   else
     slMgr.draw()
