@@ -1636,10 +1636,14 @@ function script.drawUI(dt)
     ui.transparentWindow("main", windowPosition, windowSize, false, true, function()
       if settingsOpened then
         ui.drawRectFilled(vec2(0,0), settingsSize, rgbm(0.4,0.4,0.4,0.5),10,ui.CornerFlags.All)
+        if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
+          settingsOpened = not settingsOpened
+        end
         script.windowSettings(dt)
-      end
-      if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
-        settingsOpened = not settingsOpened
+      else
+        if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
+          settingsOpened = not settingsOpened
+        end
       end
       if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
         slMgr.draw()
