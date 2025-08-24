@@ -159,7 +159,7 @@ local trackLightsRotation
 ---@param server_mode? boolean
 ---@return ac.SceneReference
 local function displayLights(lightType, position, rotY, server_mode)
-  local rootNode = ac.findNodes('trackRoot:yes')   --'carsRoot:yes') --'trackRoot:yes')
+  local rootNode = ac.findNodes('trackRoot:yes') --'carsRoot:yes') --'trackRoot:yes')
   local lightMesh
   trackLightPosition = position:clone()
   trackLightsRotation = rotY
@@ -234,22 +234,25 @@ end
 ---@param lightType tl.LightType
 ---@param server_mode? boolean
 local function loadOnlineConfig(config, lightType, server_mode)
-    if config then
-        --local currentTrack = ac.getTrackID()
-        local currentLayout = ac.getTrackFullID()
-        for index, section in config:iterate('TRACK_START_LIGHT') do
-            local track = config:get(section, "TRACK", "")
-            if track == currentLayout then
-                if trackLightMesh then
-                    tl.rotateTrackLights(config:get(section, "ROT",0))
-                    tl.setTrackLightPosition(vec3(config:get(section, "X",0), config:get(section, "Y",0), config:get(section, "Z",0)))
-                else
-                    trackLightMesh = displayLights(lightType, vec3(config:get(section, "X",0), config:get(section, "Y",0), config:get(section, "Z",0)), config:get(section, "ROT",0), server_mode)
-                end
-                lightsEmbedInTrack = true
-            end
+  if config then
+    --local currentTrack = ac.getTrackID()
+    local currentLayout = ac.getTrackFullID()
+    for index, section in config:iterate('TRACK_START_LIGHT') do
+      local track = config:get(section, "TRACK", "")
+      if track == currentLayout then
+        if trackLightMesh then
+          tl.rotateTrackLights(config:get(section, "ROT", 0))
+          tl.setTrackLightPosition(vec3(config:get(section, "X", 0), config:get(section, "Y", 0),
+            config:get(section, "Z", 0)))
+        else
+          trackLightMesh = displayLights(lightType,
+            vec3(config:get(section, "X", 0), config:get(section, "Y", 0), config:get(section, "Z", 0)),
+            config:get(section, "ROT", 0), server_mode)
         end
+        lightsEmbedInTrack = true
+      end
     end
+  end
 end
 
 ---Init track lights
@@ -478,16 +481,16 @@ end
 local sound = nil
 local soundsBasePath = ""
 local function resetSoundsAndPlay(soundName)
-    if sound then
-        sound:stop()
-        sound:dispose()
-    end
-    local soundPath = soundsBasePath .. "sounds/" .. soundName .. ".mp3"
-    sound = ac.AudioEvent.fromFile({ filename = soundPath, use3D = false, loop = false }, false)
-    sound.cameraExteriorMultiplier = 1
-    sound.cameraInteriorMultiplier = 1
-    sound.cameraTrackMultiplier = 1
-    sound:start()
+  if sound then
+    sound:stop()
+    sound:dispose()
+  end
+  local soundPath = soundsBasePath .. "sounds/" .. soundName .. ".mp3"
+  sound = ac.AudioEvent.fromFile({ filename = soundPath, use3D = false, loop = false }, false)
+  sound.cameraExteriorMultiplier = 1
+  sound.cameraInteriorMultiplier = 1
+  sound.cameraTrackMultiplier = 1
+  sound:start()
 end
 
 local currentTime = 0
@@ -518,23 +521,21 @@ local serverMode = false
 ---@param chatMessage boolean
 ---@param mod3d boolean
 ---@param server? boolean
-function slMgr.init(classicLightsScale, sound, classicLightsOrientation, lightsModType, chatMessage,mod3d, server)
-    slMgr.setScale(classicLightsScale)
-    slMgr.setUseSound(sound)
-    slMgr.setOrientation(classicLightsOrientation)
-    slMgr.set3DModType(lightsModType)
-    slMgr.setSendChatMessage(chatMessage)
-    slMgr.setUse3DLights(mod3d)
-    tl.init(lightsModType, false, server)
-    serverMode = server
-    if serverMode then
-      ac.log("too")
-        web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/sounds.zip",function (err, folder)
-            ac.log(err)
-            soundsBasePath = folder .. "\\"
-            ac.log(soundsBasePath)
-        end)
-    end
+function slMgr.init(classicLightsScale, sound, classicLightsOrientation, lightsModType, chatMessage, mod3d, server)
+  slMgr.setScale(classicLightsScale)
+  slMgr.setUseSound(sound)
+  slMgr.setOrientation(classicLightsOrientation)
+  slMgr.set3DModType(lightsModType)
+  slMgr.setSendChatMessage(chatMessage)
+  slMgr.setUse3DLights(mod3d)
+  tl.init(lightsModType, false, server)
+  serverMode = server
+  if serverMode then
+    web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/sounds.zip",
+      function(err, folder)
+        soundsBasePath = folder .. "\\"
+      end)
+  end
 end
 
 function slMgr.setUseSound(enabled)
@@ -659,7 +660,7 @@ function slMgr.triggerStartLights(greenDuration, _isInitiator)
   if greenDuration then
     greenLightDuration = greenDuration
   else
-    greenLightDuration = 2     -- default duration if not provided
+    greenLightDuration = 2 -- default duration if not provided
   end
   start_lights_running = true
   TLightsConnection.Started = true
@@ -741,7 +742,7 @@ function slMgr.updateStartLights(dt)
       greenLightTimer = greenLightTimer + dt
       if greenLightTimer >= greenLightDuration then
         start_lights_state = 5
-        lhud.hideLights()         -- scale 1 ?
+        lhud.hideLights() -- scale 1 ?
         start_lights_running = false
         TLightsConnection.Started = false
         if not tl.trackHasLightMesh() then
@@ -840,7 +841,7 @@ local AppSettings = ac.storage {
   greenLightDuration = DEFAULT_GREEN_LIGHT_DURATION, -- in seconds
   classicLightsScale = DEFAULT_SCALE,                -- default scale for the start light
   useSound = DEFAULT_USE_SOUND,                      -- default sound setting
-  classicLightsOrientation = "horizontal",             -- default orientation for the start light
+  classicLightsOrientation = "horizontal",           -- default orientation for the start light
   useClassicLightsHUD = true,
   use3DLights = true,
   lightsModType = tl.LightType.DBZ,
@@ -864,6 +865,8 @@ if ac.isLuaAppRunning("Traffic_Lights") then
   ac.uninstallApp("Traffic_Lights")
 end
 
+ac.log(__dirname)
+
 if SERVER_MODE and ac.isLuaAppRunning("Start_Lights") then
   SERVER_MODE_AND_APP = true
   return
@@ -883,7 +886,7 @@ if SERVER_MODE then
   end
   local online_extras = ac.INIConfig.onlineExtras()
   loadOnlineConfig(online_extras)
-  ac.onOnlineWelcome(function (message, config)
+  ac.onOnlineWelcome(function(message, config)
     loadOnlineConfig(config)
   end)
 end
@@ -1661,7 +1664,7 @@ function script.drawUI(dt)
           80 * AppSettings.classicLightsScale)
     ui.transparentWindow("main", windowPosition, windowSize, false, true, function()
       if settingsOpened then
-        ui.drawRectFilled(vec2(0,0), settingsSize, rgbm(0.4,0.4,0.4,0.5),10,ui.CornerFlags.All)
+        ui.drawRectFilled(vec2(0, 0), settingsSize, rgbm(0.4, 0.4, 0.4, 0.5), 10, ui.CornerFlags.All)
         if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
           settingsOpened = not settingsOpened
         end
@@ -1677,7 +1680,7 @@ function script.drawUI(dt)
         slMgr.setStartLightsVisible(false)
         if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
           ui.setMouseCursor(ui.MouseCursor.Hand)
-          windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left,5))
+          windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left, 5))
           AppSettings.appPositionX = windowPosition.x
           AppSettings.appPositionY = windowPosition.y
           ui.resetMouseDragDelta(ui.MouseButton.Left)
