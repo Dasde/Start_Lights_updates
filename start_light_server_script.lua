@@ -1568,7 +1568,7 @@ function script.windowSettings(dt)
 
       --ui.setCursorX(ui.getCursorX() +
       -- ((ui.windowWidth() - ui.getCursorX() - 300 + (editionMode and 0 or -BUTTON_SIZE.x - 40)) / 2))
-      if SERVER_MODE then
+      if not SERVER_MODE then
         if not slMgr.trackHasEmbedLightMesh() then
           if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
             local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
@@ -1713,9 +1713,9 @@ function script.drawUI(dt)
         slMgr.draw()
       else
         slMgr.setStartLightsVisible(false)
-        if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
-          ui.setMouseCursor(ui.MouseCursor.Hand)
-          windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left, 5))
+        if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows)) then
+          ui.setMouseCursor(ui.MouseCursor.ResizeAll)
+          windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left))
           AppSettings.appPositionX = windowPosition.x
           AppSettings.appPositionY = windowPosition.y
           ui.resetMouseDragDelta(ui.MouseButton.Left)
