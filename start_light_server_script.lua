@@ -186,7 +186,7 @@ local function displayLights(lightType, position, rotY, server_mode)
     if server_mode then
       web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/letsgo.zip",
         function(err, folder)
-          lightMesh = rootNode:loadKN5("assets/letsgo.kn5")
+          lightMesh = rootNode:loadKN5(folder .. "\\letsgo.kn5")
           lightPrefix = "go0"
           nbLights = 3
           lightsDirection = LIGHTS_DIRECTION.top
