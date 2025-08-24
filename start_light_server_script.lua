@@ -529,7 +529,8 @@ function slMgr.init(classicLightsScale, sound, classicLightsOrientation, lightsM
     serverMode = server
     if serverMode then
         web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/sounds.zip",function (err, folder)
-            soundsBasePath = folder
+            soundsBasePath = folder .. "\\"
+            ac.log(soundsBasePath)
         end)
     end
 end
