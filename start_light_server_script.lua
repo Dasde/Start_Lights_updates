@@ -1534,7 +1534,7 @@ function script.windowSettings(dt)
       end
       ui.separator()
       ui.newLine(20)
-      if not serverMode then
+      if not SERVER_MODE then
         if ui.button("Restart app...", BUTTON_SIZE) then
           ac.restartApp()
         end
@@ -1720,8 +1720,8 @@ function script.drawUI(dt)
           AppSettings.appPositionY = windowPosition.y
           ui.resetMouseDragDelta(ui.MouseButton.Left)
           if not settingsOpened then
-            ui.setCursorY((hudSize.y - 50) / 2)
             ui.setCursorX((hudSize.x - 200) / 2)
+            ui.setCursorY((hudSize.y - 50) / 2)
             if ui.button("Show Start Lights settings...", vec2(200, 50)) then
               settingsOpened = true
             end
