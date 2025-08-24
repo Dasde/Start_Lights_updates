@@ -235,12 +235,12 @@ end
 ---@param server_mode? boolean
 local function loadOnlineConfig(config, lightType, server_mode)
   if config then
-    local currentTrack = ac.getTrackID()
+    --local currentTrack = ac.getTrackID()
     local currentLayout = ac.getTrackFullID()
     for index, section in config:iterate('TRACK_START_LIGHT') do
       --ac.log(section)
       local track = config:get(section, "TRACK", "")
-      if track == currentTrack then
+      if track == currentLayout then
         if trackLightMesh then
           tl.rotateTrackLights(config:get(section, "rot", 0))
           tl.setTrackLightPosition(vec3(config:get(section, "x", 0), config:get(section, "y", 0),
@@ -861,6 +861,16 @@ end
 if SERVER_MODE and ac.isLuaAppRunning("Start_Lights") then
   SERVER_MODE_AND_APP = true
   return
+end
+
+if SERVER_MODE then
+  local online_extras = ac.INIConfig.onlineExtras()
+  for index, section in online_extras:iterate('TRACK_START_LIGHT_OPERATOR') do
+    local operator = online_extras:get(section, "STEAM_ID", "")
+    if ac.getUserSteamID() == operator then
+      table.insert(grantedUsers, ac.getCar(0).sessionID)
+    end
+  end
 end
 
 slMgr.init(AppSettings.classicLightsScale, AppSettings.useSound, AppSettings.classicLightsOrientation,
