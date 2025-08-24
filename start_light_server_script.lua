@@ -151,6 +151,8 @@ local lightsEmbedInTrack = false
 local trackLightMesh --- @type ac.SceneReference
 local trackLightPosition
 local trackLightsRotation
+local oldTrackLightPosition
+local oldTrackLightsRotation
 
 ---Display a start light on track
 ---@param lightType tl.LightType
@@ -161,6 +163,8 @@ local trackLightsRotation
 local function displayLights(lightType, position, rotY, server_mode)
   local rootNode = ac.findNodes('trackRoot:yes') --'carsRoot:yes') --'trackRoot:yes')
   local lightMesh
+  oldTrackLightPosition = trackLightPosition:clone()
+  oldTrackLightsRotation = trackLightsRotation
   trackLightPosition = position:clone()
   trackLightsRotation = rotY
   if (lightType == tl.LightType.VDM) then
@@ -213,15 +217,17 @@ local function displayLights(lightType, position, rotY, server_mode)
   return lightMesh
 end
 
-function tl.clearSavedLights()
-  tl.removeLightMesh()
-  lightsOnTrack = false
-  local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-  if io.exists(trackIniFilename) then
-    ac.pauseFilesWatching(true)
-    os.remove(trackIniFilename)
-    ac.pauseFilesWatching(false)
-  end
+function tl.clearSavedLights(server_mode)
+    tl.removeLightMesh()
+    lightsOnTrack = false
+    if not server_mode then
+        local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+        if io.exists(trackIniFilename) then
+            ac.pauseFilesWatching(true)
+            os.remove(trackIniFilename)
+            ac.pauseFilesWatching(false)
+        end
+    end
 end
 
 local function checkTrackHasLightMesh()
@@ -314,7 +320,8 @@ end
 --     loadOnlineConfig(config, tl.LightType.VDM)
 -- end)
 
-function tl.saveTrackLights()
+function tl.saveTrackLights(server_mode)
+  if server_mode then return end
   local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
   local trackIni = ac.INIConfig.load(trackIniFilename)
   ac.pauseFilesWatching(true)
@@ -324,6 +331,22 @@ function tl.saveTrackLights()
   trackIni:set("Position", "rot", trackLightsRotation)
   trackIni:save()
   ac.pauseFilesWatching(false)
+end
+
+function tl.reloadTrackLights(modType, force, serverMode)
+    trackLightPosition = oldTrackLightPosition
+    trackLightsRotation = oldTrackLightsRotation
+     if trackLightMesh and force then
+        trackLightMesh:dispose()
+        ---@diagnostic disable-next-line: cast-local-type
+        trackLightMesh = nil
+    end
+    if trackLightMesh then
+        tl.rotateTrackLights(trackLightsRotation)
+        tl.setTrackLightPosition(trackLightPosition)
+    else
+        displayLights(modType, trackLightPosition, trackLightsRotation, serverMode)
+    end
 end
 
 function tl.displayLightMesh(lightType)
@@ -419,6 +442,7 @@ function tl.getTrackLightPosition()
 end
 
 function tl.setTrackLightPosition(pos)
+  oldTrackLightPosition = pos:clone()
   trackLightPosition = pos
   if trackLightMesh then
     trackLightMesh:setPosition(pos)
@@ -431,10 +455,12 @@ function tl.getTrackLightsRotation()
 end
 
 function tl.setTrackLightsRotation(angle)
+  oldTrackLightsRotation = trackLightsRotation
   trackLightsRotation = angle
 end
 
 function tl.rotateTrackLights(angle)
+  oldTrackLightsRotation = trackLightsRotation
   trackLightsRotation = angle
   trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(angle))
 end
@@ -567,25 +593,27 @@ function slMgr.getTrackLightsRotation()
 end
 
 function slMgr.setAndSaveTrackLights(pos, rotation)
-  if tl.getTrackLightPosition() == pos and tl.getTrackLightsRotation() == rotation then return end
-  tl.setTrackLightPosition(pos)
-  tl.setTrackLightsRotation(rotation)
-  tl.saveTrackLights()
-  if not tl.trackHasLightMesh then
-    tl.init(modType, false)
-  end
+    if tl.getTrackLightPosition() == pos and tl.getTrackLightsRotation() == rotation then return end
+    tl.setTrackLightPosition(pos)
+    tl.setTrackLightsRotation(rotation)
+    if not serverMode then
+        tl.saveTrackLights()
+    end
+    if not tl.trackHasLightMesh and not serverMode then
+        tl.init(modType, false)
+    end
 end
 
 function slMgr.saveTrackLights()
-  tl.saveTrackLights()
+  tl.saveTrackLights(serverMode)
 end
 
 function slMgr.reloadTrackLights(force)
-  tl.init(modType, force)
+  tl.reloadTrackLights(modType, force, serverMode)
 end
 
 function slMgr.clearSavedLights()
-  tl.clearSavedLights()
+  tl.clearSavedLights(serverMode)
 end
 
 function slMgr.SetIsYellowBlinking(isBlinking)
@@ -1506,8 +1534,11 @@ function script.windowSettings(dt)
       end
       ui.separator()
       ui.newLine(20)
-      if ui.button("Restart app...", BUTTON_SIZE) then
-        ac.restartApp()
+      if not serverMode then
+        if ui.button("Restart app...", BUTTON_SIZE) then
+          ac.restartApp()
+        end
+        ui.newLine()
       end
     end)
 
@@ -1526,25 +1557,28 @@ function script.windowSettings(dt)
           "If you have a track_lights.ini file for the track paste it in the track extension folder and restart the app.")
         ui.separator()
         ui.newLine()
-        if ui.button("Restart app...", BUTTON_SIZE) then
-          ac.restartApp()
+        if not serverMode then
+          if ui.button("Restart app...", BUTTON_SIZE) then
+            ac.restartApp()
+          end
         end
         ui.sameLine()
       end
 
       --ui.setCursorX(ui.getCursorX() +
       -- ((ui.windowWidth() - ui.getCursorX() - 300 + (editionMode and 0 or -BUTTON_SIZE.x - 40)) / 2))
-
-      if not slMgr.trackHasEmbedLightMesh() then
-        if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
-          local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-          if io.exists(trackIniFilename) then
-            os.showInExplorer(trackIniFilename)
-          else
-            os.openInExplorer(ac.getFolder(ac.FolderID.CurrentTrackLayoutUI))
+      if SERVER_MODE then
+        if not slMgr.trackHasEmbedLightMesh() then
+          if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
+            local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+            if io.exists(trackIniFilename) then
+              os.showInExplorer(trackIniFilename)
+            else
+              os.openInExplorer(ac.getFolder(ac.FolderID.CurrentTrackLayoutUI))
+            end
           end
+          ui.sameLine()
         end
-        ui.sameLine()
       end
       if slMgr.trackHasLightMesh() and not slMgr.trackHasEmbedLightMesh() then
         if ui.button("Remove", BUTTON_SIZE) then
@@ -1599,6 +1633,7 @@ function script.windowSettings(dt)
         ui.popFont()
         ui.text("Only admins can operate the Track Lights")
       end)
+      ui.newLine()
     else
       ui.tabItem("Competition Mode", function()
         script.windowContentCompetitionMode(dt)
