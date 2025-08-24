@@ -1511,88 +1511,86 @@ function script.windowSettings(dt)
       end
     end)
 
-    if not SERVER_MODE then
-      ui.tabItem("Track light editor", function()
-        if slMgr.trackHasEmbedLightMesh() then
-          ui.text("This track has its own start lights already. It's not editable.")
-        elseif slMgr.trackHasLightMesh() then
-          ui.text(string.format("A track start light is already on track at position\n%s.", slMgr.getTrackLightPosition()))
-          ui.separator()
-          ui.newLine(15)
-        else
-          ui.text("There is no track start light on track.\nIf you have track_lights.ini paste it in the ")
-          ui.separator()
-          ui.newLine(5)
-          ui.text(
-            "If you have a track_lights.ini file for the track paste it in the track extension folder and restart the app.")
-          ui.separator()
-          ui.newLine()
-          if ui.button("Restart app...", BUTTON_SIZE) then
-            ac.restartApp()
-          end
-          ui.sameLine()
+    ui.tabItem("Track light editor", function()
+      if slMgr.trackHasEmbedLightMesh() then
+        ui.text("This track has its own start lights already. It's not editable.")
+      elseif slMgr.trackHasLightMesh() then
+        ui.text(string.format("A track start light is already on track at position\n%s.", slMgr.getTrackLightPosition()))
+        ui.separator()
+        ui.newLine(15)
+      else
+        ui.text("There is no track start light on track.\nIf you have track_lights.ini paste it in the ")
+        ui.separator()
+        ui.newLine(5)
+        ui.text(
+          "If you have a track_lights.ini file for the track paste it in the track extension folder and restart the app.")
+        ui.separator()
+        ui.newLine()
+        if ui.button("Restart app...", BUTTON_SIZE) then
+          ac.restartApp()
         end
+        ui.sameLine()
+      end
 
-        --ui.setCursorX(ui.getCursorX() +
-        -- ((ui.windowWidth() - ui.getCursorX() - 300 + (editionMode and 0 or -BUTTON_SIZE.x - 40)) / 2))
+      --ui.setCursorX(ui.getCursorX() +
+      -- ((ui.windowWidth() - ui.getCursorX() - 300 + (editionMode and 0 or -BUTTON_SIZE.x - 40)) / 2))
 
+      if not slMgr.trackHasEmbedLightMesh() then
+        if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
+          local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+          if io.exists(trackIniFilename) then
+            os.showInExplorer(trackIniFilename)
+          else
+            os.openInExplorer(ac.getFolder(ac.FolderID.CurrentTrackLayoutUI))
+          end
+        end
+        ui.sameLine()
+      end
+      if slMgr.trackHasLightMesh() and not slMgr.trackHasEmbedLightMesh() then
+        if ui.button("Remove", BUTTON_SIZE) then
+          editionMode = false
+          slMgr.trackLightEdition(editionMode)
+          slMgr.clearSavedLights()
+        end
+      end
+      if editionMode then
+        ui.setMouseCursor(ui.MouseCursor.ResizeAll)
+        ui.separator()
+        ui.newLine(5)
+        ui.text(
+          "Just double click on the map where you want to place the start lights.\nClick the save button when you are done.")
+        ui.newLine(15)
+        local rot = refnumber(slMgr.getTrackLightsRotation())
+        ui.setNextItemWidth(350)
+        ui.setCursorX((ui.windowWidth() - 350) / 2)
+        if ui.slider("'##rotationSliderID'", rot, 0, 360, 'Rotation: %.1f') then
+          slMgr.rotateTrackLights(rot.value)
+        end
+        ui.newLine(5)
+        ui.setCursorX((ui.windowWidth() - (2 * BUTTON_SIZE.x) - 10) / 2)
+        if ui.button("Save", BUTTON_SIZE) then
+          editionMode = false
+          slMgr.trackLightEdition(editionMode)
+          slMgr.saveTrackLights()
+        end
+        ui.sameLine()
+        if ui.button("Cancel", BUTTON_SIZE) then
+          editionMode = false
+          slMgr.trackLightEdition(editionMode)
+          slMgr.reloadTrackLights(false)
+        end
+      else
+        ui.setMouseCursor(ui.MouseCursor.Arrow)
         if not slMgr.trackHasEmbedLightMesh() then
-          if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
-            local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-            if io.exists(trackIniFilename) then
-              os.showInExplorer(trackIniFilename)
-            else
-              os.openInExplorer(ac.getFolder(ac.FolderID.CurrentTrackLayoutUI))
-            end
-          end
           ui.sameLine()
-        end
-        if slMgr.trackHasLightMesh() and not slMgr.trackHasEmbedLightMesh() then
-          if ui.button("Remove", BUTTON_SIZE) then
-            editionMode = false
+          --  ui.setCursorX(ui.getCursorX() + (ui.windowWidth() - ui.getCursorX() - BUTTON_SIZE.x) / 2)
+          if ui.button(slMgr.trackHasLightMesh() and "Edit Light..." or "Create Light...", BUTTON_SIZE) then
+            editionMode = true
             slMgr.trackLightEdition(editionMode)
-            slMgr.clearSavedLights()
           end
         end
-        if editionMode then
-          ui.setMouseCursor(ui.MouseCursor.ResizeAll)
-          ui.separator()
-          ui.newLine(5)
-          ui.text(
-            "Just double click on the map where you want to place the start lights.\nClick the save button when you are done.")
-          ui.newLine(15)
-          local rot = refnumber(slMgr.getTrackLightsRotation())
-          ui.setNextItemWidth(350)
-          ui.setCursorX((ui.windowWidth() - 350) / 2)
-          if ui.slider("'##rotationSliderID'", rot, 0, 360, 'Rotation: %.1f') then
-            slMgr.rotateTrackLights(rot.value)
-          end
-          ui.newLine(5)
-          ui.setCursorX((ui.windowWidth() - (2 * BUTTON_SIZE.x) - 10) / 2)
-          if ui.button("Save", BUTTON_SIZE) then
-            editionMode = false
-            slMgr.trackLightEdition(editionMode)
-            slMgr.saveTrackLights()
-          end
-          ui.sameLine()
-          if ui.button("Cancel", BUTTON_SIZE) then
-            editionMode = false
-            slMgr.trackLightEdition(editionMode)
-            slMgr.reloadTrackLights(false)
-          end
-        else
-          ui.setMouseCursor(ui.MouseCursor.Arrow)
-          if not slMgr.trackHasEmbedLightMesh() then
-            ui.sameLine()
-            --  ui.setCursorX(ui.getCursorX() + (ui.windowWidth() - ui.getCursorX() - BUTTON_SIZE.x) / 2)
-            if ui.button(slMgr.trackHasLightMesh() and "Edit Light..." or "Create Light...", BUTTON_SIZE) then
-              editionMode = true
-              slMgr.trackLightEdition(editionMode)
-            end
-          end
-        end
-      end)
-    end
+      end
+    end)
     if competitionMode and not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
       ui.tabItem("Competition Mode", function()
         ui.pushFont(ui.Font.Huge)
