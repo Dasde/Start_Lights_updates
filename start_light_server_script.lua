@@ -1540,6 +1540,7 @@ function script.windowSettings(dt)
         end
         ui.newLine()
       end
+      ui.newLine()
     end)
 
     ui.tabItem("Track light editor", function()
@@ -1633,6 +1634,7 @@ function script.windowSettings(dt)
         ui.popFont()
         ui.text("Only admins can operate the Track Lights")
       end)
+      ui.newLine()
       ui.newLine()
     else
       ui.tabItem("Competition Mode", function()
