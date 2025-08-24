@@ -865,6 +865,8 @@ end
 
 if SERVER_MODE then
   local function loadOnlineConfig(online_extras)
+    ac.debug("yo")
+    ac.debug(online_extras)
     for index, section in online_extras:iterate('TRACK_START_LIGHT_OPERATOR') do
       local operator = online_extras:get(section, "STEAM_ID", "")
       ac.log(operator)
