@@ -1564,7 +1564,7 @@ function script.windowSettings(dt)
           "If you have a track_lights.ini file for the track paste it in the track extension folder and restart the app.")
         ui.separator()
         ui.newLine()
-        if not serverMode then
+        if not SERVER_MODE then
           if ui.button("Restart app...", BUTTON_SIZE) then
             ac.restartApp()
           end
@@ -1674,7 +1674,7 @@ function script.windowMain(dt)
     if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
       slMgr.setStartLightsVisible(true)
       script.drawUI(dt)
-      if not ac.isWindowOpen("settings") then
+      if not SERVER_MODE and not ac.isWindowOpen("settings") then
         ui.offsetCursorY((ui.windowHeight() - 50) / 2)
         ui.offsetCursorX((ui.windowWidth() - 200) / 2)
         if ui.button("Show Start Lights settings...", vec2(200, 50)) then
@@ -1708,6 +1708,11 @@ function script.drawUI(dt)
         ui.drawRectFilled(vec2(0, 0), settingsSize, rgbm(0.4, 0.4, 0.4, 0.5), 10, ui.CornerFlags.All)
         if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
           settingsOpened = not settingsOpened
+        end
+        if ui.itemHovered(ui.HoveredFlags.None) then
+          ui.tooltip(function ()
+            ui.text(settingsOpened and "Close Settings" or "Open Settings")
+          end)
         end
         script.windowSettings(dt)
       else
