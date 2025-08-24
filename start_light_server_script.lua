@@ -238,7 +238,6 @@ local function loadOnlineConfig(config, lightType, server_mode)
         --local currentTrack = ac.getTrackID()
         local currentLayout = ac.getTrackFullID()
         for index, section in config:iterate('TRACK_START_LIGHT') do
-            --ac.log(section)
             local track = config:get(section, "TRACK", "")
             if track == currentLayout then
                 if trackLightMesh then
@@ -862,12 +861,11 @@ end
 
 if SERVER_MODE then
   local function loadOnlineConfig(online_extras)
-    ac.debug("yo")
-    ac.debug(online_extras)
+    ac.debug("extra",online_extras)
+    ac.debug("me",ac.getUserSteamID())
     for index, section in online_extras:iterate('TRACK_START_LIGHT_OPERATOR') do
       local operator = online_extras:get(section, "STEAM_ID", "")
       ac.log(operator)
-      ac.debug("me",ac.getUserSteamID())
       if ac.getUserSteamID() == operator then
         table.insert(grantedUsers, ac.getCar(0).sessionID)
       end
