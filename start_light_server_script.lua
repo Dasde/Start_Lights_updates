@@ -357,7 +357,7 @@ function tl.displayLightMesh(lightType)
   trackLightMesh = displayLights(lightType, polePosition, 0)
 end
 
-function tl:enableEditionMode(dt, lightType)
+function tl:enableEditionMode(dt, lightType, serverMode)
   if ui.mouseDoubleClicked(ui.MouseButton.Left) then
     local hit = vec3(0, 0, 0)
     local ray = render.createMouseRay()
@@ -370,7 +370,7 @@ function tl:enableEditionMode(dt, lightType)
       if trackLightMesh then
         trackLightMesh:setPosition(hit:clone())
       else
-        trackLightMesh = displayLights(lightType, trackLightPosition, 0)
+        trackLightMesh = displayLights(lightType, trackLightPosition, 0, serverMode)
       end
       lightsOnTrack = true
     end
@@ -713,7 +713,7 @@ end
 
 function slMgr.updateStartLights(dt)
   if trackLightEdition then
-    tl:enableEditionMode(dt, modType)
+    tl:enableEditionMode(dt, modType, serverMode)
   end
   if not start_lights_running then
     return
