@@ -234,26 +234,23 @@ end
 ---@param lightType tl.LightType
 ---@param server_mode? boolean
 local function loadOnlineConfig(config, lightType, server_mode)
-  if config then
-    --local currentTrack = ac.getTrackID()
-    local currentLayout = ac.getTrackFullID()
-    for index, section in config:iterate('TRACK_START_LIGHT') do
-      --ac.log(section)
-      local track = config:get(section, "TRACK", "")
-      if track == currentLayout then
-        if trackLightMesh then
-          tl.rotateTrackLights(config:get(section, "rot", 0))
-          tl.setTrackLightPosition(vec3(config:get(section, "x", 0), config:get(section, "y", 0),
-            config:get(section, "z", 0)))
-        else
-          trackLightMesh = displayLights(lightType,
-            vec3(config:get(section, "x", 0), config:get(section, "y", 0), config:get(section, "z", 0)),
-            config:get(section, "rot", 0), server_mode)
+    if config then
+        --local currentTrack = ac.getTrackID()
+        local currentLayout = ac.getTrackFullID()
+        for index, section in config:iterate('TRACK_START_LIGHT') do
+            --ac.log(section)
+            local track = config:get(section, "TRACK", "")
+            if track == currentLayout then
+                if trackLightMesh then
+                    tl.rotateTrackLights(config:get(section, "ROT",0))
+                    tl.setTrackLightPosition(vec3(config:get(section, "X",0), config:get(section, "Y",0), config:get(section, "Z",0)))
+                else
+                    trackLightMesh = displayLights(lightType, vec3(config:get(section, "X",0), config:get(section, "Y",0), config:get(section, "Z",0)), config:get(section, "ROT",0), server_mode)
+                end
+                lightsEmbedInTrack = true
+            end
         end
-        lightsEmbedInTrack = true
-      end
     end
-  end
 end
 
 ---Init track lights
