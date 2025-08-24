@@ -163,7 +163,7 @@ local oldTrackLightsRotation
 local function displayLights(lightType, position, rotY, server_mode)
   local rootNode = ac.findNodes('trackRoot:yes') --'carsRoot:yes') --'trackRoot:yes')
   local lightMesh
-  oldTrackLightPosition = trackLightPosition:clone()
+  oldTrackLightPosition = trackLightPosition and trackLightPosition:clone() or vec3()
   oldTrackLightsRotation = trackLightsRotation
   trackLightPosition = position:clone()
   trackLightsRotation = rotY
