@@ -867,6 +867,8 @@ if SERVER_MODE then
   local online_extras = ac.INIConfig.onlineExtras()
   for index, section in online_extras:iterate('TRACK_START_LIGHT_OPERATOR') do
     local operator = online_extras:get(section, "STEAM_ID", "")
+    ac.log(operator)
+    ac.debug("me",ac.getUserSteamID())
     if ac.getUserSteamID() == operator then
       table.insert(grantedUsers, ac.getCar(0).sessionID)
     end
