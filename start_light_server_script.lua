@@ -854,10 +854,19 @@ end
 
 --- START LIGHTS
 local update = {}
-local SERVER_MODE = true
-
-
-local SERVER_MODE_AND_APP = false
+local SERVER_MODE = __dirname == nil
+local SLKey = ac.getCarID(0) .. "_startLights"
+local SLSharedData = {
+    ac.StructItem.key(SLKey .. "_" .. 0),
+    serverScriptConnected = ac.StructItem.boolean(),
+    appConnected = ac.StructItem.boolean(),
+}
+SLightsAppConnection = ac.connect(SLSharedData, false, ac.SharedNamespace.Shared)
+if SERVER_MODE then
+  SLightsAppConnection.serverScriptConnected = true
+else
+  SLightsAppConnection.appConnected = true
+end
 local DEFAULT_TRIGGER_RANGE = 20       -- in meters
 local FALSE_START_TRIGGER_RANGE = 30
 local DEFAULT_GREEN_LIGHT_DURATION = 2 -- in seconds
@@ -893,11 +902,8 @@ if ac.isLuaAppRunning("Traffic_Lights") then
   ac.uninstallApp("Traffic_Lights")
 end
 
-ac.log(__dirname)
-
-if SERVER_MODE and ac.isLuaAppRunning("Start_Lights") then
-  SERVER_MODE_AND_APP = true
-  return
+if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
+  if not SERVER_MODE then return end
 end
 
 if SERVER_MODE then
@@ -1659,8 +1665,8 @@ function script.resizeWindowMain()
 end
 
 function script.windowMain(dt)
-  if SERVER_MODE_AND_APP then
-    return
+  if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
+    if not SERVER_MODE then return end
   end
   if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
     script.drawUI(dt)
@@ -1686,8 +1692,8 @@ local windowPosition = vec2(AppSettings.appPositionX, AppSettings.appPositionY)
 local windowSize = vec2(500, 500)
 local settingsSize = vec2(500, 500)
 function script.drawUI(dt)
-  if SERVER_MODE_AND_APP then
-    return
+  if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
+    if not SERVER_MODE then return end
   end
   if SERVER_MODE then
     ui.restoreCursor()
@@ -1752,11 +1758,8 @@ ac.onChatMessage(function(message, senderCarIndex, senderSessionID)
 end)
 
 function script.update(dt)
-  if SERVER_MODE_AND_APP then
-    return
-  end
-  if SERVER_MODE and ac.isLuaAppRunning("Start_Lights") then
-    SERVER_MODE_AND_APP = true
+  if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
+    if not SERVER_MODE then return end
   end
   isPaused = ac.getGameDeltaT() == 0
   if sim.isReplayActive then
