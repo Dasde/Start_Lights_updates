@@ -171,13 +171,13 @@ local function displayLights(lightType, position, rotY, server_mode)
     if server_mode then
       web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/vdm_lights.zip",
         function(err, folder)
-          lightMesh = rootNode:loadKN5(folder .. "\\vdm_lights.kn5")
+          trackLightMesh = rootNode:loadKN5(folder .. "\\vdm_lights.kn5")
           lightPrefix = "start_"
           nbLights = 4
           lightsDirection = LIGHTS_DIRECTION.bottom
-          lightMesh:setPosition(position)
+          trackLightMesh:setPosition(position)
           if rotY ~= 0 then
-            lightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
+            trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
           end
         end)
       return
@@ -190,15 +190,15 @@ local function displayLights(lightType, position, rotY, server_mode)
     if server_mode then
       web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/letsgo.zip",
         function(err, folder)
-          lightMesh = rootNode:loadKN5(folder .. "\\letsgo.kn5")
+          trackLightMesh = rootNode:loadKN5(folder .. "\\letsgo.kn5")
           lightPrefix = "go0"
           nbLights = 3
           lightsDirection = LIGHTS_DIRECTION.top
-          lightMesh:findMeshes("Objet006"):setTransparent(true)
+          trackLightMesh:findMeshes("Objet006"):setTransparent(true)
           position:add(vec3(0, 0.165, 0))
-          lightMesh:setPosition(position)
+          trackLightMesh:setPosition(position)
           if rotY ~= 0 then
-            lightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
+            trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
           end
         end)
       return
@@ -1625,6 +1625,7 @@ function script.windowSettings(dt)
           end
         end
       end
+      ui.newLine()
     end)
     if competitionMode and not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
       ui.tabItem("Competition Mode", function()
@@ -1634,11 +1635,10 @@ function script.windowSettings(dt)
         ui.popFont()
         ui.text("Only admins can operate the Track Lights")
       end)
-      ui.newLine()
-      ui.newLine()
     else
       ui.tabItem("Competition Mode", function()
         script.windowContentCompetitionMode(dt)
+        ui.newLine()
       end)
     end
     if not SERVER_MODE then
