@@ -476,17 +476,18 @@ function slMgr.set3DModType(type)
 end
 
 local sound = nil
+local soundsBasePath = ""
 local function resetSoundsAndPlay(soundName)
-  if sound then
-    sound:stop()
-    sound:dispose()
-  end
-  local soundPath = "sounds/" .. soundName .. ".mp3"
-  sound = ac.AudioEvent.fromFile({ filename = soundPath, use3D = false, loop = false }, false)
-  sound.cameraExteriorMultiplier = 1
-  sound.cameraInteriorMultiplier = 1
-  sound.cameraTrackMultiplier = 1
-  sound:start()
+    if sound then
+        sound:stop()
+        sound:dispose()
+    end
+    local soundPath = soundsBasePath .. "sounds/" .. soundName .. ".mp3"
+    sound = ac.AudioEvent.fromFile({ filename = soundPath, use3D = false, loop = false }, false)
+    sound.cameraExteriorMultiplier = 1
+    sound.cameraInteriorMultiplier = 1
+    sound.cameraTrackMultiplier = 1
+    sound:start()
 end
 
 local currentTime = 0
@@ -508,7 +509,7 @@ local useClassicLightsHUD = true
 local use3DLights = true
 local isInitiator = false
 local trackLightEdition = false
-
+local serverMode = false
 ---comment
 ---@param classicLightsScale number
 ---@param sound boolean
@@ -516,15 +517,21 @@ local trackLightEdition = false
 ---@param lightsModType tl.LightType
 ---@param chatMessage boolean
 ---@param mod3d boolean
----@param serverMode? boolean
-function slMgr.init(classicLightsScale, sound, classicLightsOrientation, lightsModType, chatMessage, mod3d, serverMode)
-  slMgr.setScale(classicLightsScale)
-  slMgr.setUseSound(sound)
-  slMgr.setOrientation(classicLightsOrientation)
-  slMgr.set3DModType(lightsModType)
-  slMgr.setSendChatMessage(chatMessage)
-  slMgr.setUse3DLights(mod3d)
-  tl.init(lightsModType, false, serverMode)
+---@param server? boolean
+function slMgr.init(classicLightsScale, sound, classicLightsOrientation, lightsModType, chatMessage,mod3d, server)
+    slMgr.setScale(classicLightsScale)
+    slMgr.setUseSound(sound)
+    slMgr.setOrientation(classicLightsOrientation)
+    slMgr.set3DModType(lightsModType)
+    slMgr.setSendChatMessage(chatMessage)
+    slMgr.setUse3DLights(mod3d)
+    tl.init(lightsModType, false, server)
+    serverMode = server
+    if serverMode then
+        web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/sounds.zip",function (err, folder)
+            soundsBasePath = folder
+        end)
+    end
 end
 
 function slMgr.setUseSound(enabled)
@@ -861,13 +868,13 @@ end
 
 if SERVER_MODE then
   local function loadOnlineConfig(online_extras)
-    ac.debug("extra",online_extras)
-    ac.debug("me",ac.getUserSteamID())
     for index, section in online_extras:iterate('TRACK_START_LIGHT_OPERATOR') do
       local operator = online_extras:get(section, "STEAM_ID", "")
-      ac.log(operator)
       if ac.getUserSteamID() == operator then
-        table.insert(grantedUsers, ac.getCar(0).sessionID)
+        local sessionID = ac.getCar(0).sessionID
+        if not table.contains(grantedUsers, sessionID) then
+          table.insert(grantedUsers, sessionID)
+        end
       end
     end
   end
