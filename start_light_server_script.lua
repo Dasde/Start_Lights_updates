@@ -1753,13 +1753,18 @@ function script.drawUI(dt)
         end
         if ui.itemHovered(ui.HoveredFlags.None) then
           ui.tooltip(function ()
-            ui.text(settingsOpened and "Close Settings" or "Open Settings")
+            ui.text("Close Settings")
           end)
         end
         script.windowSettings(dt)
       else
         if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
           settingsOpened = not settingsOpened
+        end
+        if ui.itemHovered(ui.HoveredFlags.None) then
+          ui.tooltip(function ()
+            ui.text("Open Settings")
+          end)
         end
       end
       if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
