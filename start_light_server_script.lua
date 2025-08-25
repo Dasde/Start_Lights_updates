@@ -1138,6 +1138,7 @@ local updateGrantedUsers = ac.OnlineEvent({
 end, ac.SharedNamespace.Shared)
 
 if SLightsAppConnection.isAdmin then
+  addGrantedUsers(ac.getCar(0).sessionID)
   updateGrantedUsers({ grantedUsers = grantedUsers }, true)
 end
 
@@ -1321,6 +1322,16 @@ if sim.isReplayActive then
   reloadReplayData()
 end
 
+ac.onClientConnected(function (connectedCarIndex, connectedSessionID)
+  if (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
+    updateGrantedUsers({ grantedUsers = grantedUsers }, false, connectedSessionID)
+  elseif SLightsAppConnection.isAdmin then
+    addGrantedUsers(ac.getCar(0).sessionID)
+    updateGrantedUsers({ grantedUsers = grantedUsers }, false, connectedSessionID)
+  end
+end)
+
+
 ac.onClientDisconnected(function(connectedCarIndex, connectedSessionID)
   if not verifySessionID(connectedSessionID) then return end
   if (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
@@ -1334,6 +1345,9 @@ end)
 
 function script.windowCompetitionMode(dt)
   if not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
+    if SLightsAppConnection.isAdmin then
+      updateGrantedUsers({ grantedUsers = grantedUsers }, true)
+    end
     ui.text("You are not a granted operator on this server.")
   end
   local bgSize = (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) and ui.windowSize():clone():add(vec2(0, -70)) or
