@@ -625,7 +625,7 @@ end
 
 function slMgr.getTrackLightConfig()
     local pos = tl.getTrackLightPosition()
-    return string.format("[TRACK_START_LIGHT_0]\nTRACK=%s\nX=%f\nY=%f\nZ=%f\nROT=%f",ac.getTrackFullID(), pos.x, pos.y, pos.z, tl.getTrackLightsRotation())
+    return string.format("[TRACK_START_LIGHT]\nTRACK=%s\nX=%f\nY=%f\nZ=%f\nROT=%f",ac.getTrackFullID(), pos.x, pos.y, pos.z, tl.getTrackLightsRotation())
 end
 
 function slMgr.setAndSaveTrackLights(pos, rotation)
