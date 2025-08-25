@@ -261,12 +261,12 @@ local function loadOnlineConfig(config, lightType, server_mode)
       end
       if not lightsEmbedInTrack then
         web.get('https://api.github.com/repos/Dasde/Start_Lights_tracks/contents', function(err, response)
-          ac.debug(response.body)
             if response then
                 local listTracks = JSON.parse(response.body)
                 for index, track in ipairs(listTracks) do
-                    ac.debug(track)
+                    ac.log(track)
                     if track.name == currentLayout then
+                       ac.log("found")
                         web.get(track.download_url, function(err, response)
                             local trackConfig = ac.INIConfig.parse(response.body)
                             local section = ""
