@@ -1754,9 +1754,6 @@ function script.drawUI(dt)
         if ui.itemHovered(ui.HoveredFlags.None) then
           ui.tooltip(function ()
             ui.text(settingsOpened and "Close Settings" or "Open Settings")
-            if ui.itemClicked(ui.MouseButton.Left) then
-              settingsOpened = not settingsOpened
-            end
           end)
         end
         script.windowSettings(dt)
@@ -1775,13 +1772,6 @@ function script.drawUI(dt)
           AppSettings.appPositionX = windowPosition.x
           AppSettings.appPositionY = windowPosition.y
           ui.resetMouseDragDelta(ui.MouseButton.Left)
-          if not settingsOpened then
-            ui.setCursorX((hudSize.x - 200) / 2)
-            ui.setCursorY((hudSize.y - 50) / 2)
-            if ui.button("Show Start Lights settings...", vec2(200, 50)) then
-              settingsOpened = true
-            end
-          end
         end
       end
       settingsSize = vec2(ui.getMaxCursorX()+20, ui.getMaxCursorY())
