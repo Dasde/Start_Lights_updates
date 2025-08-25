@@ -312,7 +312,7 @@ function tl.init(lightType, force, server_mode)
     lightsEmbedInTrack = false
     local extras = ac.INIConfig.onlineExtras()
     loadOnlineConfig(extras, lightType, server_mode)
-    if not lightsEmbedInTrack then
+    if not lightsEmbedInTrack and not server_mode then
       local oldTrackIniFilename = ac.getFolder(ac.FolderID.CurrentTrack) .. "/extension/" .. "track_lights.ini"
       local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
       if io.exists(oldTrackIniFilename) then
