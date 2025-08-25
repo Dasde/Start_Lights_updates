@@ -861,7 +861,8 @@ function slMgr.draw()
 end
 
 function slMgr.drawMiniHUD()
-  lhud.draw("horizontal", 1.02, start_lights_state, isYellowBlinking)
+    local ratio = ui.windowWidth() / 300
+    lhud.draw("horizontal", ratio, start_lights_state, isYellowBlinking)
 end
 
 function slMgr.setScale(scale)
@@ -1371,7 +1372,8 @@ function script.windowCompetitionMode(dt)
   ui.setCursorX(20)
   script.windowContentCompetitionMode(dt)
   if slMgr.isStartLightsActive() or slMgr.isYellowBlinking() then
-    ui.childWindow("mini-hud", vec2(ui.windowWidth(), 85), function()
+    local childHeight = (ui.windowWidth() / 300) * 80
+    ui.childWindow("mini-hud", vec2(ui.windowWidth(), childHeight), function()
       miniHUDrunning = true
       slMgr.drawMiniHUD()
     end)
