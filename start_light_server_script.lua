@@ -244,7 +244,6 @@ local function loadOnlineConfig(config, lightType, server_mode)
     if config then
         --local currentTrack = ac.getTrackID()
         for index, section in config:iterate('TRACK_START_LIGHT') do
-            --ac.log(section)
             local track = config:get(section, "TRACK", "")
             if track == currentLayout then
                 if trackLightMesh then
@@ -259,9 +258,10 @@ local function loadOnlineConfig(config, lightType, server_mode)
                 lightsEmbedInTrack = true
             end
         end
-    else
+      end
+      if not lightsEmbedInTrack then
         web.get('https://api.github.com/repos/Dasde/Start_Lights_tracks/contents', function(err, response)
-          ac.debug(response)
+          ac.debug(response.body)
             if response then
                 local listTracks = JSON.parse(response.body)
                 for index, track in ipairs(listTracks) do
@@ -1779,8 +1779,8 @@ function script.drawUI(dt)
           end
         end
       end
-      settingsSize = vec2(ui.getMaxCursorX()+10, ui.getMaxCursorY())
-      windowSize = vec2(math.max(hudSize.x, ui.getMaxCursorX()), math.max(hudSize.y, ui.getMaxCursorY()))
+      settingsSize = vec2(ui.getMaxCursorX()+20, ui.getMaxCursorY())
+      windowSize = vec2(math.max(hudSize.x, ui.getMaxCursorX()+20), math.max(hudSize.y, ui.getMaxCursorY()))
     end)
   else
     slMgr.draw()
