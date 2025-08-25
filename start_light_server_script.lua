@@ -265,10 +265,9 @@ local function loadOnlineConfig(config, lightType, server_mode)
                 local listTracks = JSON.parse(response.body)
                 for index, track in ipairs(listTracks) do
                     if track.name == currentLayout .. ".ini" then
-                       ac.log("found")
                         web.get(track.download_url, function(err, response)
                             local trackConfig = ac.INIConfig.parse(response.body)
-                            local section = ""
+                            local section = "TRACK_START_LIGHT"
                             if trackLightMesh then
                                 tl.rotateTrackLights(trackConfig:get(section, "ROT", 0))
                                 tl.setTrackLightPosition(vec3(trackConfig:get(section, "X", 0),
@@ -318,6 +317,11 @@ function tl.init(lightType, force, server_mode)
       local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
       if io.exists(oldTrackIniFilename) then
         ac.pauseFilesWatching(true)
+        local oldTrackIni = ac.INIConfig.load(oldTrackIniFilename)
+        oldTrackIni:set("POSITION", "X", oldTrackIni:get("Position", "x", 0))
+        oldTrackIni:set("POSITION", "Y", oldTrackIni:get("Position", "y", 0))
+        oldTrackIni:set("POSITION", "Z", oldTrackIni:get("Position", "z", 0))
+        oldTrackIni:set("POSITION", "ROT", oldTrackIni:get("Position", "rot", 0))
         if not io.move(oldTrackIniFilename, trackIniFilename) then
           os.remove(oldTrackIniFilename)
         end
@@ -326,13 +330,13 @@ function tl.init(lightType, force, server_mode)
       if io.exists(trackIniFilename) then
         local trackIni = ac.INIConfig.load(trackIniFilename)
         if trackLightMesh then
-          tl.rotateTrackLights(trackIni:get("Position", "rot", 0))
-          tl.setTrackLightPosition(vec3(trackIni:get("Position", "x", 0), trackIni:get("Position", "y", 0),
-            trackIni:get("Position", "z", 0)))
+          tl.rotateTrackLights(trackIni:get("POSITION", "ROT", 0))
+          tl.setTrackLightPosition(vec3(trackIni:get("POSITION", "X", 0), trackIni:get("POSITION", "Y", 0),
+            trackIni:get("POSITION", "Z", 0)))
         else
           trackLightMesh = displayLights(lightType,
-            vec3(trackIni:get("Position", "x", 0), trackIni:get("Position", "y", 0), trackIni:get("Position", "z", 0)),
-            trackIni:get("Position", "rot", 0), server_mode)
+            vec3(trackIni:get("POSITION", "X", 0), trackIni:get("POSITION", "Y", 0), trackIni:get("POSITION", "Z", 0)),
+            trackIni:get("POSITION", "ROT", 0), server_mode)
         end
         lightsOnTrack = true
       end
@@ -352,10 +356,10 @@ function tl.saveTrackLights(server_mode)
   local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
   local trackIni = ac.INIConfig.load(trackIniFilename)
   ac.pauseFilesWatching(true)
-  trackIni:set("Position", "x", trackLightPosition.x)
-  trackIni:set("Position", "y", trackLightPosition.y)
-  trackIni:set("Position", "z", trackLightPosition.z)
-  trackIni:set("Position", "rot", trackLightsRotation)
+  trackIni:set("POSITION", "X", trackLightPosition.x)
+  trackIni:set("POSITION", "Y", trackLightPosition.y)
+  trackIni:set("POSITION", "Z", trackLightPosition.z)
+  trackIni:set("POSITION", "ROT", trackLightsRotation)
   trackIni:save()
   ac.pauseFilesWatching(false)
 end
@@ -621,7 +625,7 @@ end
 
 function slMgr.getTrackLightConfig()
     local pos = tl.getTrackLightPosition()
-    return string.format("TRACK=%s\nX=%f\nY=%f\nZ=%f\nROT=%f",ac.getTrackFullID(), pos.x, pos.y, pos.z, tl.getTrackLightsRotation())
+    return string.format("[TRACK_START_LIGHT_0]\nTRACK=%s\nX=%f\nY=%f\nZ=%f\nROT=%f",ac.getTrackFullID(), pos.x, pos.y, pos.z, tl.getTrackLightsRotation())
 end
 
 function slMgr.setAndSaveTrackLights(pos, rotation)
