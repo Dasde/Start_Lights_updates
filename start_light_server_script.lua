@@ -1343,6 +1343,7 @@ ac.onClientDisconnected(function(connectedCarIndex, connectedSessionID)
   end
 end)
 
+local miniHUDrunning = false
 function script.windowCompetitionMode(dt)
   if not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
     if SLightsAppConnection.isAdmin then
@@ -1371,8 +1372,11 @@ function script.windowCompetitionMode(dt)
   script.windowContentCompetitionMode(dt)
   if slMgr.isStartLightsActive() or slMgr.isYellowBlinking() then
     ui.childWindow("mini-hud", vec2(ui.windowWidth(), 85), function()
+      miniHUDrunning = true
       slMgr.drawMiniHUD()
     end)
+  else
+    miniHUDrunning = false
   end
 end
 
@@ -1730,7 +1734,9 @@ function script.windowSettings(dt)
       end)
     else
       ui.tabItem("Download the App!", function()
-        ui.text("Want to use the Start Lights everywhere ?")
+        ui.bulletText("Start Lights on every servers")
+        ui.bulletText("Ability to operate the semaphore from the pit")
+        ui.bulletText("Ability to save and reload your semaphore position for a track")
         ui.text("Download the App :")
         ui.sameLine()
         if ui.textHyperlink("https://vosan.co/app-tools/start-lights") then
@@ -1817,6 +1823,7 @@ local settingsOpened = false
 local windowPosition = vec2(AppSettings.appPositionX, AppSettings.appPositionY)
 local windowSize = vec2(500, 500)
 local settingsSize = vec2(500, 500)
+local minHUDrunning = false
 function script.drawUI(dt)
   if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
     if not SERVER_MODE then return end
@@ -1888,7 +1895,7 @@ end)
 
 function script.update(dt)
   if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
-    if not SERVER_MODE then return end
+    if not SERVER_MODE and not miniHUDrunning then return end
   end
   isPaused = ac.getGameDeltaT() == 0
   if sim.isReplayActive then
