@@ -264,8 +264,7 @@ local function loadOnlineConfig(config, lightType, server_mode)
             if response then
                 local listTracks = JSON.parse(response.body)
                 for index, track in ipairs(listTracks) do
-                    ac.log(track)
-                    if track.name == currentLayout then
+                    if track.name == currentLayout .. ".ini" then
                        ac.log("found")
                         web.get(track.download_url, function(err, response)
                             local trackConfig = ac.INIConfig.parse(response.body)
