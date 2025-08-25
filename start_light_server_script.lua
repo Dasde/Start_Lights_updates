@@ -1593,12 +1593,12 @@ function script.windowSettings(dt)
         ui.separator()
         ui.newLine(15)
       else
-        ui.newLine(5)
-        ui.text(
-          "If you have a track_lights.ini file for the track paste it in the track layout folder and restart the app.")
-        ui.separator()
-        ui.newLine()
         if not SERVER_MODE then
+          ui.newLine(5)
+          ui.text(
+            "If you have a track_lights.ini file for the track paste it in the track layout folder and restart the app.")
+          ui.separator()
+          ui.newLine()
           if ui.button("Restart app...", BUTTON_SIZE) then
             ac.restartApp()
           end
