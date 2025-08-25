@@ -240,25 +240,51 @@ end
 ---@param lightType tl.LightType
 ---@param server_mode? boolean
 local function loadOnlineConfig(config, lightType, server_mode)
-  if config then
-    --local currentTrack = ac.getTrackID()
     local currentLayout = ac.getTrackFullID()
-    for index, section in config:iterate('TRACK_START_LIGHT') do
-      local track = config:get(section, "TRACK", "")
-      if track == currentLayout then
-        if trackLightMesh then
-          tl.rotateTrackLights(config:get(section, "ROT", 0))
-          tl.setTrackLightPosition(vec3(config:get(section, "X", 0), config:get(section, "Y", 0),
-            config:get(section, "Z", 0)))
-        else
-          trackLightMesh = displayLights(lightType,
-            vec3(config:get(section, "X", 0), config:get(section, "Y", 0), config:get(section, "Z", 0)),
-            config:get(section, "ROT", 0), server_mode)
+    if config then
+        --local currentTrack = ac.getTrackID()
+        for index, section in config:iterate('TRACK_START_LIGHT') do
+            --ac.log(section)
+            local track = config:get(section, "TRACK", "")
+            if track == currentLayout then
+                if trackLightMesh then
+                    tl.rotateTrackLights(config:get(section, "ROT", 0))
+                    tl.setTrackLightPosition(vec3(config:get(section, "X", 0), config:get(section, "Y", 0),
+                        config:get(section, "Z", 0)))
+                else
+                    trackLightMesh = displayLights(lightType,
+                        vec3(config:get(section, "X", 0), config:get(section, "Y", 0), config:get(section, "Z", 0)),
+                        config:get(section, "ROT", 0), server_mode)
+                end
+                lightsEmbedInTrack = true
+            end
         end
-        lightsEmbedInTrack = true
-      end
+    else
+        web.get('https://api.github.com/repos/Dasde/Start_Lights_tracks/contents', function(err, response)
+            if response then
+                local listTracks = JSON.parse(response.body)
+                for index, track in ipairs(listTracks) do
+                    if track.name == currentLayout then
+                        web.get(track.download_url, function(err, response)
+                            local trackConfig = ac.INIConfig.parse(response.body)
+                            local section = ""
+                            if trackLightMesh then
+                                tl.rotateTrackLights(trackConfig:get(section, "ROT", 0))
+                                tl.setTrackLightPosition(vec3(trackConfig:get(section, "X", 0),
+                                    trackConfig:get(section, "Y", 0), trackConfig:get(section, "Z", 0)))
+                            else
+                                trackLightMesh = displayLights(lightType,
+                                    vec3(trackConfig:get(section, "X", 0), trackConfig:get(section, "Y", 0),
+                                        trackConfig:get(section, "Z", 0)), trackConfig:get(section, "ROT", 0),
+                                    server_mode)
+                            end
+                            lightsEmbedInTrack = true
+                        end)
+                    end
+                end
+            end
+        end)
     end
-  end
 end
 
 ---Init track lights
@@ -590,6 +616,11 @@ end
 
 function slMgr.getTrackLightsRotation()
   return tl.getTrackLightsRotation()
+end
+
+function slMgr.getTrackLightConfig()
+    local pos = tl.getTrackLightPosition()
+    return string.format("TRACK=%s\nX=%f\nY=%f\nZ=%f\nROT=%f",ac.getTrackFullID(), pos.x, pos.y, pos.z, tl.getTrackLightsRotation())
 end
 
 function slMgr.setAndSaveTrackLights(pos, rotation)
@@ -1629,6 +1660,9 @@ function script.windowSettings(dt)
             editionMode = true
             slMgr.trackLightEdition(editionMode)
           end
+        end
+        if slMgr.trackHasLightMesh() then
+          ac.setClipboardText(slMgr.getTrackLightConfig())
         end
       end
       ui.newLine()
