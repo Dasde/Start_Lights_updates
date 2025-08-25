@@ -970,13 +970,11 @@ if not SERVER_MODE then
   update.checkForUpdate()
 end
 -- local triggerMessage = "[Start Lights] Get Ready!"
-local triggerStartLightsButton = ac.ControlButton('Start_Lights_TRIGGER_START_LIGHTS',
-  { keyboard = { key = (ui.KeyIndex.A) } })
+local triggerStartLightsButton = ac.ControlButton('Start_Lights_TRIGGER_START_LIGHTS')
 
 -- local falseStartMessage = "[Start Lights] False start!"
 -- local endFalseStartMessage = "[Start Lights] End false start!"
-local falseStartButton = ac.ControlButton('Start_Lights_TOGGLE_FALSE_START',
-  { keyboard = { key = (ui.KeyIndex.F) } })
+local falseStartButton = ac.ControlButton('Start_Lights_TOGGLE_FALSE_START')
 
 local useWhiteList = false
 local whiteList = {}
@@ -1532,6 +1530,7 @@ function script.windowSettings(dt)
       else
         ui.text("Press " .. configuredControl .. " to start the lights")
       end
+      triggerStartLightsButton:control(BUTTON_SIZE, ui.ControlButtonControlFlags.IgnoreConflicts)
       ui.setNextTextBold()
       ui.text("How to trigger false start")
       configuredControl = falseStartButton:boundTo()
