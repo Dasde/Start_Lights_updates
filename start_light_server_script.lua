@@ -1709,13 +1709,14 @@ function script.windowSettings(dt)
         update.drawUI()
       end)
     else
-      ui.tabItem("Updates", function()
+      ui.tabItem("Download the App!", function()
         ui.text("Want to use the Start Lights everywhere ?")
         ui.text("Download the App :")
         ui.sameLine()
         if ui.textHyperlink("https://vosan.co/app-tools/start-lights") then
           os.openURL("https://vosan.co/app-tools/start-lights")
         end
+        ui.newLine()
       end)
     end
     ui.tabItem("About", function()
@@ -1755,6 +1756,7 @@ function script.windowSettings(dt)
       if ui.textHyperlink("paypal.me/DaZDSim") then
           os.openURL("https://www.paypal.com/paypalme/DaZDSim")
       end
+      ui.newLine()
     end)
   end)
   ui.popFont()
