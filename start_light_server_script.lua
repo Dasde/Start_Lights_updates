@@ -1663,8 +1663,9 @@ function script.windowSettings(dt)
         end
         if slMgr.trackHasLightMesh() then
           ui.sameLine()
-          if ui.button("Copy data") then
+          if ui.button("Copy data", BUTTON_SIZE) then
             ac.setClipboardText(slMgr.getTrackLightConfig())
+            ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
           end
         end
       end
@@ -1762,7 +1763,7 @@ function script.drawUI(dt)
       else
         slMgr.setStartLightsVisible(false)
         if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows)) then
-          ui.setMouseCursor(ui.MouseCursor.ResizeAll)
+          ui.setMouseCursor(ui.MouseCursor.Hand)
           windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left))
           AppSettings.appPositionX = windowPosition.x
           AppSettings.appPositionY = windowPosition.y
