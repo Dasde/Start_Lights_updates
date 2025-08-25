@@ -1779,7 +1779,7 @@ function script.drawUI(dt)
           end
         end
       end
-      settingsSize = vec2(ui.getMaxCursorX(), ui.getMaxCursorY())
+      settingsSize = vec2(ui.getMaxCursorX()+10, ui.getMaxCursorY())
       windowSize = vec2(math.max(hudSize.x, ui.getMaxCursorX()), math.max(hudSize.y, ui.getMaxCursorY()))
     end)
   else
