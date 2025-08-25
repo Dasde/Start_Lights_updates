@@ -261,9 +261,11 @@ local function loadOnlineConfig(config, lightType, server_mode)
         end
     else
         web.get('https://api.github.com/repos/Dasde/Start_Lights_tracks/contents', function(err, response)
+          ac.debug(response)
             if response then
                 local listTracks = JSON.parse(response.body)
                 for index, track in ipairs(listTracks) do
+                    ac.debug(track)
                     if track.name == currentLayout then
                         web.get(track.download_url, function(err, response)
                             local trackConfig = ac.INIConfig.parse(response.body)
