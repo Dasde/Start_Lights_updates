@@ -1662,7 +1662,10 @@ function script.windowSettings(dt)
           end
         end
         if slMgr.trackHasLightMesh() then
-          ac.setClipboardText(slMgr.getTrackLightConfig())
+          ui.sameLine()
+          if ui.button("Copy data") then
+            ac.setClipboardText(slMgr.getTrackLightConfig())
+          end
         end
       end
       ui.newLine()
