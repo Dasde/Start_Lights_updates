@@ -1588,6 +1588,7 @@ function script.windowSettings(dt)
     ui.tabItem("Track light editor", function()
       if slMgr.trackHasEmbedLightMesh() then
         ui.text("This track has its own start lights already. It's not editable.")
+        ui.newLine()
       elseif slMgr.trackHasLightMesh() then
         ui.text(string.format("A track start light is already on track at position\n%s.", slMgr.getTrackLightPosition()))
         ui.separator()
@@ -1753,6 +1754,9 @@ function script.drawUI(dt)
         if ui.itemHovered(ui.HoveredFlags.None) then
           ui.tooltip(function ()
             ui.text(settingsOpened and "Close Settings" or "Open Settings")
+            if ui.itemClicked(ui.MouseButton.Left) then
+              settingsOpened = not settingsOpened
+            end
           end)
         end
         script.windowSettings(dt)
