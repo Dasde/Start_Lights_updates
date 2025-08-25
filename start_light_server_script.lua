@@ -1526,7 +1526,7 @@ function script.windowSettings(dt)
       local configuredControl = triggerStartLightsButton:boundTo()
       if not configuredControl then
         ui.text(
-          "The control to start the lights isn't configured yet. Configure it with Extended Controls (Apps/Start Lights)")
+          "The control to start the lights isn't configured yet.")
       else
         ui.text("Press " .. configuredControl .. " to start the lights")
       end
@@ -1536,15 +1536,18 @@ function script.windowSettings(dt)
       configuredControl = falseStartButton:boundTo()
       if not configuredControl then
         ui.text(
-          "The control to trigger a false start isn't configured yet. Configure it with Extended Controls (Apps/Start Lights)")
+          "The control to trigger a false start isn't configured yet.")
       else
         ui.text("Press " .. configuredControl .. " to trigger a false start")
       end
-      ui.separator()
-      ui.text("You can change the controls with the Extended Controls app (Apps/Start Lights)")
-      if ui.button("Open Extended Controls") then
-        ac.setAppOpen("ext_controls")
-        ac.setAppWindowVisible("ext_controls")
+      falseStartButton:control(BUTTON_SIZE, ui.ControlButtonControlFlags.IgnoreConflicts)
+      if not SERVER_MODE and ac.isLuaAppRunning("ext_controls") then
+        ui.separator()
+        ui.text("You can also change the controls with the Extended Controls app (Apps/Start Lights)")
+        if ui.button("Open Extended Controls") then
+          ac.setAppOpen("ext_controls")
+          ac.setAppWindowVisible("ext_controls")
+        end
       end
       if not SERVER_MODE then
         ui.separator()
