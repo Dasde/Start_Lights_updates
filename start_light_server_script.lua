@@ -1593,11 +1593,9 @@ function script.windowSettings(dt)
         ui.separator()
         ui.newLine(15)
       else
-        ui.text("There is no track start light on track.\nIf you have track_lights.ini paste it in the ")
-        ui.separator()
         ui.newLine(5)
         ui.text(
-          "If you have a track_lights.ini file for the track paste it in the track extension folder and restart the app.")
+          "If you have a track_lights.ini file for the track paste it in the track layout folder and restart the app.")
         ui.separator()
         ui.newLine()
         if not SERVER_MODE then
