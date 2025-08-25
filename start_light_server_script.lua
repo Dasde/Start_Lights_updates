@@ -896,6 +896,7 @@ local SLSharedData = {
     ac.StructItem.key(SLKey .. "_" .. 0),
     serverScriptConnected = ac.StructItem.boolean(),
     appConnected = ac.StructItem.boolean(),
+    isAdmin = ac.StructItem.boolean(),
 }
 SLightsAppConnection = ac.connect(SLSharedData, false, ac.SharedNamespace.Shared)
 if SERVER_MODE then
@@ -947,6 +948,7 @@ if SERVER_MODE then
         if not table.contains(grantedUsers, sessionID) then
           table.insert(grantedUsers, sessionID)
         end
+        SLightsAppConnection.isAdmin = true
       end
     end
   end
@@ -1134,6 +1136,10 @@ local updateGrantedUsers = ac.OnlineEvent({
     addGrantedUsers(data.grantedUsers[i])
   end
 end, ac.SharedNamespace.Shared)
+
+if SLightsAppConnection.isAdmin then
+  updateGrantedUsers({ grantedUsers = grantedUsers }, true)
+end
 
 local startLightsEvent = ac.OnlineEvent({
   key = ac.StructItem.key("Start_Lights_trigger_events"),
@@ -1328,7 +1334,7 @@ end)
 
 function script.windowCompetitionMode(dt)
   if not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
-    do return end
+    ui.text("You are not a granted operator on this server.")
   end
   local bgSize = (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) and ui.windowSize():clone():add(vec2(0, -70)) or
       ui.windowSize()
@@ -1338,7 +1344,7 @@ function script.windowCompetitionMode(dt)
   ui.pushFont(ui.Font.Title)
   ui.setNextItemWidth(450)
   ui.setCursorX(20)
-  ui.text("Traffic Lights - Competition Mode    ")
+  ui.text("Start Lights - Competition Mode    ")
   ui.setCursorX(20)
   if competitionMode then
     ui.textColored("Activated", rgbm.colors.red)
