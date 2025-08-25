@@ -938,10 +938,6 @@ if ac.isLuaAppRunning("Traffic_Lights") then
   ac.uninstallApp("Traffic_Lights")
 end
 
-if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
-  if not SERVER_MODE then return end
-end
-
 if SERVER_MODE then
   local function loadOnlineConfig(online_extras)
     for index, section in online_extras:iterate('TRACK_START_LIGHT_OPERATOR') do
@@ -970,11 +966,13 @@ if not SERVER_MODE then
   update.checkForUpdate()
 end
 -- local triggerMessage = "[Start Lights] Get Ready!"
-local triggerStartLightsButton = ac.ControlButton('Start_Lights_TRIGGER_START_LIGHTS')
+local triggerStartLightsButton = ac.ControlButton('Start_Lights_TRIGGER_START_LIGHTS',
+  { keyboard = { key = (ui.KeyIndex.A) } })
 
 -- local falseStartMessage = "[Start Lights] False start!"
 -- local endFalseStartMessage = "[Start Lights] End false start!"
-local falseStartButton = ac.ControlButton('Start_Lights_TOGGLE_FALSE_START')
+local falseStartButton = ac.ControlButton('Start_Lights_TOGGLE_FALSE_START',
+  { keyboard = { key = (ui.KeyIndex.F) } })
 
 local useWhiteList = false
 local whiteList = {}
@@ -1458,7 +1456,20 @@ function script.windowSettings(dt)
   end
   ui.pushFont(ui.Font.Title)
   ui.tabBar("settings", function()
+    local isAppAndServerScriptRunning = false
+    if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
+      if not SERVER_MODE then
+        ui.text("Start Lights ServerScript detected, please use it instead")
+        ui.text("Look for this icon : ")
+        ui.sameLine()
+        ui.icon(ui.Icons.TrafficLight, vec2(32,32))
+        ui.newLine()
+        isAppAndServerScriptRunning = true
+      end
+    end
     ui.tabItem("General", function()
+      local scaleChanged
+      if isAppAndServerScriptRunning then goto howtotrigger end
       ui.text("Orientation :")
       if ui.radioButton("Vertical", AppSettings.classicLightsOrientation == "vertical") then
         AppSettings.classicLightsOrientation = "vertical"
@@ -1479,7 +1490,6 @@ function script.windowSettings(dt)
         AppSettings.triggerRange = DEFAULT_TRIGGER_RANGE -- reset to default if not using range
       end
       AppSettings.greenLightDuration = ui.slider("Green Light Duration (s)", AppSettings.greenLightDuration, 1, 10)
-      local scaleChanged
       AppSettings.classicLightsScale, scaleChanged = ui.slider("Start Light Scale", AppSettings.classicLightsScale, 0.1,
         3)
       if scaleChanged then
@@ -1517,6 +1527,7 @@ function script.windowSettings(dt)
           slMgr.reloadTrackLights(true)
         end
       end
+      ::howtotrigger::
       ui.separator()
       ui.setNextTextBold()
       ui.text("How to trigger the start lights")
@@ -1586,116 +1597,165 @@ function script.windowSettings(dt)
       end
       ui.newLine()
     end)
-
-    ui.tabItem("Track light editor", function()
-      if slMgr.trackHasEmbedLightMesh() then
-        ui.text("This track has its own start lights already. It's not editable.")
-        ui.newLine()
-      elseif slMgr.trackHasLightMesh() then
-        ui.text(string.format("A track start light is already on track at position\n%s.", slMgr.getTrackLightPosition()))
-        ui.separator()
-        ui.newLine(15)
-      else
-        ui.newLine(5)
-        if not SERVER_MODE then
-          ui.text(
-            "If you have a track_lights.ini file for the track paste it in the track layout folder and restart the app.")
-          ui.separator()
+    if not isAppAndServerScriptRunning then
+      
+      ui.tabItem("Track light editor", function()
+        if slMgr.trackHasEmbedLightMesh() then
+          ui.text("This track has its own start lights already. It's not editable.")
           ui.newLine()
-          if ui.button("Restart app...", BUTTON_SIZE) then
-            ac.restartApp()
-          end
-        end
-        ui.sameLine()
-      end
-
-      --ui.setCursorX(ui.getCursorX() +
-      -- ((ui.windowWidth() - ui.getCursorX() - 300 + (editionMode and 0 or -BUTTON_SIZE.x - 40)) / 2))
-      if not SERVER_MODE then
-        if not slMgr.trackHasEmbedLightMesh() then
-          if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
-            local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-            if io.exists(trackIniFilename) then
-              os.showInExplorer(trackIniFilename)
-            else
-              os.openInExplorer(ac.getFolder(ac.FolderID.CurrentTrackLayoutUI))
+        elseif slMgr.trackHasLightMesh() then
+          ui.text(string.format("A track start light is already on track at position\n%s.", slMgr.getTrackLightPosition()))
+          ui.separator()
+          ui.newLine(15)
+        else
+          ui.newLine(5)
+          if not SERVER_MODE then
+            ui.text(
+              "If you have a track_lights.ini file for the track paste it in the track layout folder and restart the app.")
+            ui.separator()
+            ui.newLine()
+            if ui.button("Restart app...", BUTTON_SIZE) then
+              ac.restartApp()
             end
           end
           ui.sameLine()
         end
-      end
-      if slMgr.trackHasLightMesh() and not slMgr.trackHasEmbedLightMesh() then
-        if ui.button("Remove", BUTTON_SIZE) then
-          editionMode = false
-          slMgr.trackLightEdition(editionMode)
-          slMgr.clearSavedLights()
+  
+        --ui.setCursorX(ui.getCursorX() +
+        -- ((ui.windowWidth() - ui.getCursorX() - 300 + (editionMode and 0 or -BUTTON_SIZE.x - 40)) / 2))
+        if not SERVER_MODE then
+          if not slMgr.trackHasEmbedLightMesh() then
+            if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
+              local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+              if io.exists(trackIniFilename) then
+                os.showInExplorer(trackIniFilename)
+              else
+                os.openInExplorer(ac.getFolder(ac.FolderID.CurrentTrackLayoutUI))
+              end
+            end
+            ui.sameLine()
+          end
         end
-      end
-      if editionMode then
-        ui.setMouseCursor(ui.MouseCursor.ResizeAll)
-        ui.separator()
-        ui.newLine(5)
-        ui.text(
-          "Just double click on the map where you want to place the start lights.\nClick the save button when you are done.")
-        ui.newLine(15)
-        local rot = refnumber(slMgr.getTrackLightsRotation())
-        ui.setNextItemWidth(350)
-        ui.setCursorX((ui.windowWidth() - 350) / 2)
-        if ui.slider("'##rotationSliderID'", rot, 0, 360, 'Rotation: %.1f') then
-          slMgr.rotateTrackLights(rot.value)
-        end
-        ui.newLine(5)
-        ui.setCursorX((ui.windowWidth() - (2 * BUTTON_SIZE.x) - 10) / 2)
-        if ui.button("Save", BUTTON_SIZE) then
-          editionMode = false
-          slMgr.trackLightEdition(editionMode)
-          slMgr.saveTrackLights()
-        end
-        ui.sameLine()
-        if ui.button("Cancel", BUTTON_SIZE) then
-          editionMode = false
-          slMgr.trackLightEdition(editionMode)
-          slMgr.reloadTrackLights(false)
-        end
-      else
-        ui.setMouseCursor(ui.MouseCursor.Arrow)
-        if not slMgr.trackHasEmbedLightMesh() then
-          ui.sameLine()
-          --  ui.setCursorX(ui.getCursorX() + (ui.windowWidth() - ui.getCursorX() - BUTTON_SIZE.x) / 2)
-          if ui.button(slMgr.trackHasLightMesh() and "Edit Light..." or "Create Light...", BUTTON_SIZE) then
-            editionMode = true
+        if slMgr.trackHasLightMesh() and not slMgr.trackHasEmbedLightMesh() then
+          if ui.button("Remove", BUTTON_SIZE) then
+            editionMode = false
             slMgr.trackLightEdition(editionMode)
+            slMgr.clearSavedLights()
           end
         end
-        if slMgr.trackHasLightMesh() then
+        if editionMode then
+          ui.setMouseCursor(ui.MouseCursor.ResizeAll)
+          ui.separator()
+          ui.newLine(5)
+          ui.text(
+            "Just double click on the map where you want to place the start lights.\nClick the save button when you are done.")
+          ui.newLine(15)
+          local rot = refnumber(slMgr.getTrackLightsRotation())
+          ui.setNextItemWidth(350)
+          ui.setCursorX((ui.windowWidth() - 350) / 2)
+          if ui.slider("'##rotationSliderID'", rot, 0, 360, 'Rotation: %.1f') then
+            slMgr.rotateTrackLights(rot.value)
+          end
+          ui.newLine(5)
+          ui.setCursorX((ui.windowWidth() - (2 * BUTTON_SIZE.x) - 10) / 2)
+          if ui.button("Save", BUTTON_SIZE) then
+            editionMode = false
+            slMgr.trackLightEdition(editionMode)
+            slMgr.saveTrackLights()
+          end
           ui.sameLine()
-          if ui.button("Copy data", BUTTON_SIZE) then
-            ac.setClipboardText(slMgr.getTrackLightConfig())
-            ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
+          if ui.button("Cancel", BUTTON_SIZE) then
+            editionMode = false
+            slMgr.trackLightEdition(editionMode)
+            slMgr.reloadTrackLights(false)
+          end
+        else
+          ui.setMouseCursor(ui.MouseCursor.Arrow)
+          if not slMgr.trackHasEmbedLightMesh() then
+            ui.sameLine()
+            --  ui.setCursorX(ui.getCursorX() + (ui.windowWidth() - ui.getCursorX() - BUTTON_SIZE.x) / 2)
+            if ui.button(slMgr.trackHasLightMesh() and "Edit Light..." or "Create Light...", BUTTON_SIZE) then
+              editionMode = true
+              slMgr.trackLightEdition(editionMode)
+            end
+          end
+          if slMgr.trackHasLightMesh() then
+            ui.sameLine()
+            if ui.button("Copy data", BUTTON_SIZE) then
+              ac.setClipboardText(slMgr.getTrackLightConfig())
+              ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
+            end
           end
         end
-      end
-      ui.newLine()
-    end)
-    if competitionMode and not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
-      ui.tabItem("Competition Mode", function()
-        ui.pushFont(ui.Font.Huge)
-        ui.setNextTextBold()
-        ui.textColored("Competition Mode Activated!", rgbm.colors.red)
-        ui.popFont()
-        ui.text("Only admins can operate the Track Lights")
-      end)
-    else
-      ui.tabItem("Competition Mode", function()
-        script.windowContentCompetitionMode(dt)
         ui.newLine()
       end)
+      if competitionMode and not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
+        ui.tabItem("Competition Mode", function()
+          ui.pushFont(ui.Font.Huge)
+          ui.setNextTextBold()
+          ui.textColored("Competition Mode Activated!", rgbm.colors.red)
+          ui.popFont()
+          ui.text("Only admins can operate the Track Lights")
+        end)
+      else
+        ui.tabItem("Competition Mode", function()
+          script.windowContentCompetitionMode(dt)
+          ui.newLine()
+        end)
+      end
     end
     if not SERVER_MODE then
       ui.tabItem("Updates", function()
         update.drawUI()
       end)
+    else
+      ui.tabItem("Updates", function()
+        ui.text("Want to use the Start Lights everywhere ?")
+        ui.text("Download the App :")
+        ui.sameLine()
+        if ui.textHyperlink("https://vosan.co/app-tools/start-lights") then
+          os.openURL("https://vosan.co/app-tools/start-lights")
+        end
+      end)
     end
+    ui.tabItem("About", function()
+      ui.text("The Start Lights " .. string.codePointToUTF8(8482) .. " system is developped by")
+      ui.sameLine()
+      if ui.textHyperlink("@DaZD") then
+          os.openURL("https://linktr.ee/dazdsim")
+      end
+      ui.text("Feel free to contact me if you need my assistance to set up a competition or a server or any feedback.")
+      ui.text("My Discord is in the linktree linked above.")
+      ui.newLine()
+      ui.setNextTextBold()
+      ui.text("How To")
+      ui.newLine()
+      ui.setNextTextBold()
+      ui.bulletText("To add the Start Lights script to your server add this to your configuration :")
+      ui.text("[SCRIPT_0]\nSCRIPT = 'https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/start_light_server_script.lua'; ")
+      ui.newLine()
+      ui.setNextTextBold()
+      ui.bulletText("Operators can be added like this :")
+      ui.text("[TRACK_START_LIGHT_OPERATOR_0]\nSTEAM_ID=Steam id of the operator")
+      ui.newLine()
+      ui.setNextTextBold()
+      ui.bulletText("Set custom semaphore position like this :")
+      ui.text('Go to the track, position the semaphore then click "Copy data" in the "Track light editor" tab.')
+      ui.text("Then paste the text in your configuration file and ajust the number after the _ (increment)")
+      ui.text("It should look like this :")
+      ui.text("[TRACK_START_LIGHT_0]\nTRACK=cfd_val_de_vienne_2022\nX=495.0426940918\nY=1.5083720684052\nZ=69.54564666748\nROT=344.89999389648\n")
+      ui.newLine()
+      -- ui.text("Help us add more tracks position to the shared repository :")
+      -- if ui.textHyperlink("Submit a PR at Start_Lights_tracks on github") then
+      --     os.openURL("https://github.com/Dasde/Start_Lights_tracks")
+      -- end
+      ui.separator()
+      ui.text("You can support the project here :")
+      ui.sameLine()
+      if ui.textHyperlink("paypal.me/DaZDSim") then
+          os.openURL("https://www.paypal.com/paypalme/DaZDSim")
+      end
+    end)
   end)
   ui.popFont()
 end
