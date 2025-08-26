@@ -1885,7 +1885,7 @@ function script.drawUI(dt)
         slMgr.draw()
       else
         slMgr.setStartLightsVisible(false)
-        if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
+        if ui.windowHovered() then -- bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)
           ui.setMouseCursor(ui.MouseCursor.Hand)
           if not isMouseDragging and ui.mouseDown(ui.MouseButton.Left) then
             local delta = ui.mouseDragDelta(ui.MouseButton.Left)
