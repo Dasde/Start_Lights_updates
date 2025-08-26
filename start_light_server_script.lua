@@ -751,6 +751,10 @@ function slMgr.triggerStartLights(greenDuration, _isInitiator)
     greenLightTimer = 0
     isYellowBlinking = false
     blinkTimer = 0
+    
+    if sendChatMessage and isInitiator then
+      ac.sendChatMessage("[StartLights] Get Ready")
+    end
 end
 
 function slMgr.updateStartLights(dt)
@@ -792,9 +796,9 @@ function slMgr.updateStartLights(dt)
                 end
                 if sendChatMessage and isInitiator then
                     if start_lights_state < 4 then
-                        ac.sendChatMessage(string.format("%d", start_lights_state))
+                        ac.sendChatMessage(string.format("[StartLights] %d", start_lights_state))
                     else
-                        ac.sendChatMessage("Go!")
+                        ac.sendChatMessage("[StartLights] Go!")
                     end
                 end
                 if start_lights_state <= 4 then
@@ -1255,13 +1259,11 @@ local function onStartLights()
     elseif slMgr.trackHasLightMesh() then
       if ac.getCar(0).position:distance(slMgr.getTrackLightPosition()) <= AppSettings.triggerRange then
         startLightsEvent { start = true, falseStart = false, endFalseStart = false, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation() }
-        -- ac.sendChatMessage(triggerMessage)
       else
         ac.setMessage("Start Lights", "You are too far.", 'illegal')
       end
     else
       startLightsEvent { start = true, falseStart = false, endFalseStart = false, lightPosition = nil, lightRotation = 0 }
-      --ac.sendChatMessage(triggerMessage)
     end
   else
     --ac.log("Triggering Start lights in offline mode")
@@ -1283,13 +1285,11 @@ local function onFalseStart()
       elseif slMgr.trackHasLightMesh() then
         if ac.getCar(0).position:distance(slMgr.getTrackLightPosition()) <= FALSE_START_TRIGGER_RANGE then
           startLightsEvent { start = false, falseStart = true, endFalseStart = false, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation() }
-          --ac.sendChatMessage(falseStartMessage)
         else
           ac.setMessage("Start Lights", "You are too far.", 'illegal')
         end
       else
         startLightsEvent { start = false, falseStart = true, endFalseStart = false, lightPosition = nil, lightRotation = 0 }
-        --ac.sendChatMessage(falseStartMessage)
       end
     else
       falseStart(false)
@@ -1306,7 +1306,6 @@ local function onFalseStart()
         startLightsEvent { start = false, falseStart = false, endFalseStart = true, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation() }
       else
         startLightsEvent { start = false, falseStart = false, endFalseStart = true, lightPosition = nil, lightRotation = 0 }
-        --ac.sendChatMessage(endFalseStartMessage)
       end
     else
       falseStart(false)
@@ -1932,7 +1931,7 @@ ac.onSessionStart(function(sessionIndex, restarted)
 end)
 
 ac.onChatMessage(function(message, senderCarIndex, senderSessionID)
-  if message == "1" or message == "2" or message == "3" or message == "Go!" then
+  if message:startsWith("[StartLights]") then
     return true
     ---@diagnostic disable-next-line: missing-return
   end
