@@ -236,7 +236,7 @@ local function checkTrackHasLightMesh()
     return (mesh:name() ~= "")
 end
 
----comment
+---Load the online config (online extras)
 ---@param config ac.INIConfig
 ---@param lightType tl.LightType
 ---@param server_mode? boolean
@@ -467,10 +467,10 @@ end
 function tl.setTrackLightColor(lightId, color)
     local mesh = ac.findNodes('trackRoot:yes'):findMeshes(lightPrefix .. lightId)
     mesh:setMaterialProperty('ksEmissive', color)
-    mesh:setMaterialProperty('DIFFUSE_CONCENTRATION', 1.620)
-    mesh:setMaterialProperty('RANGE', 50)
-    mesh:setMaterialProperty('CLUSTER_THRESHOLD', 30)
-    mesh:setMaterialProperty('FADE_AT', 0)
+    -- mesh:setMaterialProperty('DIFFUSE_CONCENTRATION', 1.620)
+    -- mesh:setMaterialProperty('RANGE', 50)
+    -- mesh:setMaterialProperty('CLUSTER_THRESHOLD', 30)
+    -- mesh:setMaterialProperty('FADE_AT', 0)
 end
 
 function tl.getTrackLightPosition()
