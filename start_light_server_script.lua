@@ -1057,7 +1057,6 @@ local function triggerStartLights(isInitiator)
     ac.setWindowOpen("main", true)
   else
     ac.setAppWindowVisible("Start_Lights","main", false)
-    ac.setWindowOpen("main", false)
   end
   slMgr.triggerStartLights(AppSettings.greenLightDuration, isInitiator)
   if not sim.isReplayActive then
