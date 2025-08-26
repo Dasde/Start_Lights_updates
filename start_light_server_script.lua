@@ -1055,6 +1055,9 @@ local function triggerStartLights(isInitiator)
     ac.setAppOpen("Start_Lights")
     ac.setAppWindowVisible("Start_Lights")
     ac.setWindowOpen("main", true)
+  else
+    ac.setAppWindowVisible("Start_Lights","main", false)
+    ac.setWindowOpen("main", false)
   end
   slMgr.triggerStartLights(AppSettings.greenLightDuration, isInitiator)
   if not sim.isReplayActive then
@@ -1844,7 +1847,11 @@ local settingsSize = vec2(500, 500)
 local isMouseDragging
 function script.drawUI(dt)
   if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
-    if not SERVER_MODE then return end
+    if not SERVER_MODE then
+          ac.setAppWindowVisible("Start_Lights","main", false)
+          ac.setWindowOpen("main", false)
+      return
+    end
   end
   if SERVER_MODE then
     ui.restoreCursor()
