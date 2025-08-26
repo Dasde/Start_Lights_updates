@@ -1837,8 +1837,13 @@ function script.drawUI(dt)
     if not SERVER_MODE then return end
   end
   if SERVER_MODE then
-    local function dragWindow()
-      local delta = ui.mouseDragDelta(ui.MouseButton.Left)
+    ui.restoreCursor()
+    if isMouseDragging then
+      if not ui.mouseDown(ui.MouseButton.Left) then
+        isMouseDragging = false
+        ui.resetMouseDragDelta(ui.MouseButton.Left)
+      else
+        local delta = ui.mouseDragDelta(ui.MouseButton.Left)
         if delta ~= vec2() then
           windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left))
           AppSettings.appPositionX = windowPosition.x
@@ -1846,14 +1851,6 @@ function script.drawUI(dt)
           ui.resetMouseDragDelta(ui.MouseButton.Left)
           isMouseDragging = true
         end
-    end
-    ui.restoreCursor()
-    if isMouseDragging then
-      if not ui.mouseDown(ui.MouseButton.Left) then
-        isMouseDragging = false
-        ui.resetMouseDragDelta(ui.MouseButton.Left)
-      else
-        dragWindow()
       end
     end
     local hudSize = AppSettings.classicLightsOrientation == "vertical" and
@@ -1891,7 +1888,14 @@ function script.drawUI(dt)
         if ui.windowHovered(bit.bor(ui.HoveredFlags.RootAndChildWindows, ui.HoveredFlags.AllowWhenBlockedByActiveItem)) then
           ui.setMouseCursor(ui.MouseCursor.Hand)
           if not isMouseDragging and ui.mouseDown(ui.MouseButton.Left) then
-            dragWindow()
+            local delta = ui.mouseDragDelta(ui.MouseButton.Left)
+            if delta ~= vec2() then
+              windowPosition:add(ui.mouseDragDelta(ui.MouseButton.Left))
+              AppSettings.appPositionX = windowPosition.x
+              AppSettings.appPositionY = windowPosition.y
+              ui.resetMouseDragDelta(ui.MouseButton.Left)
+              isMouseDragging = true
+            end
           end
         end
       end
