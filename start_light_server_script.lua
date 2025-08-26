@@ -1756,11 +1756,21 @@ function script.windowSettings(dt)
       ui.drawCircleFilled(vec2(ui.getCursorX() + ui.measureText("The Start Lights ").x + 12, ui.getCursorY()+12), 12, rgbm.colors.white)
       ui.text("The Start Lights " .. string.codePointToUTF8(8482) .. " system is developped by")
       ui.sameLine()
-      if ui.textHyperlink("@DaZD") then
+      if ui.textHyperlink("DaZD") then
           os.openURL("https://linktr.ee/dazdsim")
       end
       ui.text("Feel free to contact me if you need my assistance to set up a competition or a server or any feedback.")
       ui.text("My Discord is in the linktree linked above.")
+      ui.newLine()
+      ui.text("With ")
+      ui.sameLine()
+      if ui.textHyperlink("CDT - Ömer Bağdatlı") then
+          os.openURL("https://www.instagram.com/rahvanr1/")
+      end
+      ui.sameLine()
+      ui.text(" we are building a list of semaphore position by track.")
+      ui.text("That list is already used by the App, no need to add a Start Lights semaphore on those tracks.")
+      ui.text("Contact us if you want to contribute or if you want your track to be added.")
       ui.newLine()
       ui.setNextTextBold()
       ui.text("How To")
