@@ -909,6 +909,7 @@ local SLSharedData = {
   serverScriptConnected = ac.StructItem.boolean(),
   appConnected = ac.StructItem.boolean(),
   isAdmin = ac.StructItem.boolean(),
+  friendlyCompetitionMode = ac.StructItem.boolean(),
 }
 SLightsAppConnection = ac.connect(SLSharedData, false, ac.SharedNamespace.Shared)
 if SERVER_MODE then
@@ -943,7 +944,6 @@ local grantedUsersChanged ---@type boolean
 local competitionModeChanged ---@type boolean
 local unSavedGrantedUsers ---@type table
 local unSavedCompetitionMode ---@type boolean
-local friendlyCompetitionMode = false ---@type boolean
 local replayDataCount = 0
 local replayData ---@type table
 local isPaused = false
@@ -1160,7 +1160,7 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
   end
   if data.competitionMode then
     ac.setMessage("Start Lights", "Competition Mode activated")
-    friendlyCompetitionMode = false
+    SLightsAppConnection.friendlyCompetitionMode = false
   else
     ac.setMessage("Start Lights", "Competition Mode deactivated")
   end
@@ -1209,7 +1209,7 @@ local startLightsEvent = ac.OnlineEvent({
     return
   end
   if data.start or data.falseStart then
-    if (competitionMode or friendlyCompetitionMode) and not slMgr.trackHasEmbedLightMesh() then
+    if (competitionMode or SLightsAppConnection.friendlyCompetitionMode) and not slMgr.trackHasEmbedLightMesh() then
       if data.lightPosition ~= slMgr.getTrackLightPosition() or data.lightRotation ~= slMgr.getTrackLightsRotation() then
         slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
       end
@@ -1218,7 +1218,7 @@ local startLightsEvent = ac.OnlineEvent({
       local senderCarPostion = sender.position;
       local range = data.falseStart and FALSE_START_TRIGGER_RANGE or AppSettings.triggerRange
       local distance
-      if data.friendlyCompetitionMode and not friendlyCompetitionMode then
+      if data.friendlyCompetitionMode and not SLightsAppConnection.friendlyCompetitionMode then
         distance = senderCarPostion:distance(slMgr.getTrackLightPosition())
         if distance > range then
           return
@@ -1238,7 +1238,7 @@ local startLightsEvent = ac.OnlineEvent({
           return
         end
       end
-      if not competitionMode and not friendlyCompetitionMode then
+      if not competitionMode and not SLightsAppConnection.friendlyCompetitionMode then
         local senderName = ac.getDriverName(sender.index)
         if useWhiteList then
           local isInWhiteList = false
@@ -1302,7 +1302,7 @@ local function onStartLights()
       else
         ac.setMessage("Start Lights", "Competition mode activated, only admins can operate the lights.", 'illegal')
       end
-    elseif friendlyCompetitionMode then
+    elseif SLightsAppConnection.friendlyCompetitionMode then
       if slMgr.trackHasLightMesh() then
         startLightsEvent { start = true, falseStart = false, endFalseStart = false, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), friendlyCompetitionMode = true }
       else
@@ -1333,7 +1333,7 @@ local function onFalseStart()
         else
           ac.setMessage("Start Lights", "Competition mode activated, only admins can operate the lights.", 'illegal')
         end
-      elseif friendlyCompetitionMode then
+      elseif SLightsAppConnection.friendlyCompetitionMode then
         if slMgr.trackHasLightMesh() then
           startLightsEvent { start = false, falseStart = true, endFalseStart = false, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), friendlyCompetitionMode = true }
         else
@@ -1359,7 +1359,7 @@ local function onFalseStart()
         else
           ac.setMessage("Start Lights", "Competition mode activated, only admins can operate the lights.", 'illegal')
         end
-      elseif friendlyCompetitionMode then
+      elseif SLightsAppConnection.friendlyCompetitionMode then
         startLightsEvent { start = false, falseStart = false, endFalseStart = true, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), friendlyCompetitionMode = true }
       else
         startLightsEvent { start = false, falseStart = false, endFalseStart = true, lightPosition = nil, lightRotation = 0 }
@@ -1410,6 +1410,10 @@ ac.onClientDisconnected(function(connectedCarIndex, connectedSessionID)
   end
 end)
 
+local descFriendlyComp = "This mode is for friendly battles. \nEvery driver has to activate it to participate.\nWith this mode every driver can activate the start lights without range restrictions.\nThe lights will be only activated for those with that mode activated"
+local maxDescFriendlyCompWidth = 0
+local maxDescFriendlyCompWidthMiniHUD = 0
+
 function script.windowCompetitionMode(dt)
   if not miniHUDstarted then
     requestLightsData{}
@@ -1421,6 +1425,7 @@ function script.windowCompetitionMode(dt)
       addAdmin(ac.getCar(0).sessionID)
       updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, false)
     end
+    ui.setCursor(10)
     ui.text("You are not a granted operator on this server.")
   end
   local bgSize = (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) and ui.windowSize():clone():add(vec2(0, -70)) or
@@ -1540,13 +1545,27 @@ function script.windowContentCompetitionMode(dt)
   if not competitionMode then
     ui.setNextTextBold()
     ui.text("Friendly Competition Mode")
-    ui.text("This mode is for friendly battles, every driver can activate the start lights.")
-    ui.text("The lights will be only activated for those with that mode activated")
-    if ui.checkbox("Toggle Friendly Competition Mode", friendlyCompetitionMode) then
-      friendlyCompetitionMode = not friendlyCompetitionMode
+    ui.setCursorX(10)
+    local descFriendlyCompWidth
+    if miniHUDrunning then
+        if maxDescFriendlyCompWidthMiniHUD == 0 then
+          maxDescFriendlyCompWidthMiniHUD = ui.measureText(descFriendlyComp).x + 10
+        end
+        descFriendlyCompWidth = maxDescFriendlyCompWidthMiniHUD
+    else
+      if maxDescFriendlyCompWidth == 0 then
+          maxDescFriendlyCompWidth = ui.measureText(descFriendlyComp).x
+      end
+      descFriendlyCompWidth = maxDescFriendlyCompWidth
     end
+    ui.textAligned(descFriendlyComp,0, vec2(descFriendlyCompWidth,100))
+    ui.setCursorX(10)
+    if ui.checkbox("Toggle Friendly Competition Mode", SLightsAppConnection.friendlyCompetitionMode) then
+      SLightsAppConnection.friendlyCompetitionMode = not SLightsAppConnection.friendlyCompetitionMode
+    end
+    ui.newLine()
   end
-  if competitionMode or friendlyCompetitionMode then
+  if competitionMode or SLightsAppConnection.friendlyCompetitionMode then
     ui.setCursorX(30)
     if ui.button("Trigger Start!", buttonSize) then
       onStartLights()
@@ -1860,7 +1879,7 @@ function script.windowSettings(dt)
       ui.setNextTextBold()
       ui.bulletText("To add the Start Lights script to your server add this to your configuration :")
       ui.text(
-        "[SCRIPT_0]\nSCRIPT = 'https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/start_light_server_script.lua'; ")
+        "[SCRIPT_0]\nSCRIPT = 'https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/start_light_server_script.lua'")
       ui.newLine()
       ui.setNextTextBold()
       ui.bulletText("Operators can be added like this :")
