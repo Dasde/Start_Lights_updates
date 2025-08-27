@@ -161,7 +161,7 @@ local oldTrackLightsRotation
 ---@param server_mode? boolean
 ---@return ac.SceneReference
 local function displayLights(lightType, position, rotY, server_mode)
-  local rootNode = ac.findNodes('trackRoot:yes')   --'carsRoot:yes') --'trackRoot:yes')
+  local rootNode = ac.findNodes('trackRoot:yes') --'carsRoot:yes') --'trackRoot:yes')
   local lightMesh
   oldTrackLightPosition = trackLightPosition and trackLightPosition:clone() or vec3()
   oldTrackLightsRotation = trackLightsRotation
@@ -731,7 +731,7 @@ function slMgr.triggerStartLights(greenDuration, _isInitiator)
   if greenDuration then
     greenLightDuration = greenDuration
   else
-    greenLightDuration = 2     -- default duration if not provided
+    greenLightDuration = 2 -- default duration if not provided
   end
   start_lights_running = true
   TLightsConnection.Started = true
@@ -817,7 +817,7 @@ function slMgr.updateStartLights(dt)
       greenLightTimer = greenLightTimer + dt
       if greenLightTimer >= greenLightDuration then
         start_lights_state = 5
-        lhud.hideLights()         -- scale 1 ?
+        lhud.hideLights() -- scale 1 ?
         start_lights_running = false
         TLightsConnection.Started = false
         if not tl.trackHasLightMesh() then
@@ -1203,47 +1203,51 @@ local startLightsEvent = ac.OnlineEvent({
     return
   end
   if data.start or data.falseStart then
-    if not competitionMode and not friendlyCompetitionMode and sender.index > 0 then
-      local ourCarPosition = ac.getCar(0).position;
-      local senderCarPostion = sender.position;
-      local range = data.falseStart and FALSE_START_TRIGGER_RANGE or AppSettings.triggerRange
-      local distance
-      if slMgr.trackHasLightMesh() then
-        distance = ourCarPosition:distance(slMgr.getTrackLightPosition())
-      elseif data.lightPosition and data.lightPosition ~= vec3() then
-        distance = ourCarPosition:distance(data.lightPosition)
-        slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
-      else
-        distance = ourCarPosition:distance(senderCarPostion)
-      end
-      if (AppSettings.useTriggerRange and distance > range) then
-        return
-      end
-      local senderName = ac.getDriverName(sender.index)
-      if useWhiteList then
-        local isInWhiteList = false
-        for _, name in ipairs(whiteList) do
-          ---@diagnostic disable-next-line: need-check-nil
-          if senderName:lower() == name:lower() then
-            isInWhiteList = true
-            break
-          end
-        end
-        if not isInWhiteList then
-          return
-        end
-      else
-        for _, name in ipairs(blackList) do
-          ---@diagnostic disable-next-line: need-check-nil
-          if senderName:lower() == name:lower() then
-            return
-          end
-        end
-      end
-    end
     if (competitionMode or friendlyCompetitionMode) and not slMgr.trackHasEmbedLightMesh() then
       if data.lightPosition ~= slMgr.getTrackLightPosition() or data.lightRotation ~= slMgr.getTrackLightsRotation() then
         slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
+      end
+    end
+    if sender.index > 0 then
+      if AppSettings.useTriggerRange then
+        local ourCarPosition = ac.getCar(0).position;
+        local senderCarPostion = sender.position;
+        local range = data.falseStart and FALSE_START_TRIGGER_RANGE or AppSettings.triggerRange
+        local distance
+        if slMgr.trackHasLightMesh() then
+          distance = ourCarPosition:distance(slMgr.getTrackLightPosition())
+        elseif data.lightPosition and data.lightPosition ~= vec3() then
+          distance = ourCarPosition:distance(data.lightPosition)
+          slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
+        else
+          distance = ourCarPosition:distance(senderCarPostion)
+        end
+        if (distance > range) then
+          return
+        end
+      end
+      if not competitionMode and not friendlyCompetitionMode then
+        local senderName = ac.getDriverName(sender.index)
+        if useWhiteList then
+          local isInWhiteList = false
+          for _, name in ipairs(whiteList) do
+            ---@diagnostic disable-next-line: need-check-nil
+            if senderName:lower() == name:lower() then
+              isInWhiteList = true
+              break
+            end
+          end
+          if not isInWhiteList then
+            return
+          end
+        else
+          for _, name in ipairs(blackList) do
+            ---@diagnostic disable-next-line: need-check-nil
+            if senderName:lower() == name:lower() then
+              return
+            end
+          end
+        end
       end
     end
     if data.falseStart then
@@ -1251,7 +1255,6 @@ local startLightsEvent = ac.OnlineEvent({
     else
       triggerStartLights(sender.index == 0)
     end
-    return
   end
 end, ac.SharedNamespace.Shared)
 
@@ -1491,8 +1494,13 @@ function script.windowContentCompetitionMode(dt)
         if competitionModeChanged then
           --competitionMode = unSavedCompetitionMode
           toggleCompetitionModeEvent(
-          { competitionMode = unSavedCompetitionMode, grantedUsers = grantedUsers, lightPosition = slMgr
-          .getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation() }, true)
+            {
+              competitionMode = unSavedCompetitionMode,
+              grantedUsers = grantedUsers,
+              lightPosition = slMgr
+                  .getTrackLightPosition(),
+              lightRotation = slMgr.getTrackLightsRotation()
+            }, true)
           competitionModeChanged = false
           grantedUsersChanged = false
         else
@@ -1831,7 +1839,7 @@ function script.windowSettings(dt)
       ui.setNextTextBold()
       ui.bulletText("To add the Start Lights script to your server add this to your configuration :")
       ui.text(
-      "[SCRIPT_0]\nSCRIPT = 'https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/start_light_server_script.lua'; ")
+        "[SCRIPT_0]\nSCRIPT = 'https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/start_light_server_script.lua'; ")
       ui.newLine()
       ui.setNextTextBold()
       ui.bulletText("Operators can be added like this :")
@@ -1843,7 +1851,7 @@ function script.windowSettings(dt)
       ui.text("Then paste the text in your configuration file and ajust the number after the _ (increment)")
       ui.text("It should look like this :")
       ui.text(
-      "[TRACK_START_LIGHT_0]\nTRACK=cfd_val_de_vienne_2022\nX=495.0426940918\nY=1.5083720684052\nZ=69.54564666748\nROT=344.89999389648\n")
+        "[TRACK_START_LIGHT_0]\nTRACK=cfd_val_de_vienne_2022\nX=495.0426940918\nY=1.5083720684052\nZ=69.54564666748\nROT=344.89999389648\n")
       ui.newLine()
       -- ui.text("Help us add more tracks position to the shared repository :")
       -- if ui.textHyperlink("Submit a PR at Start_Lights_tracks on github") then
