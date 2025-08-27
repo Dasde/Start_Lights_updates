@@ -1395,7 +1395,7 @@ function script.windowCompetitionMode(dt)
   if not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
     if SLightsAppConnection.isAdmin then
       addAdmin(ac.getCar(0).sessionID)
-      updateGrantedUsers({ admin = { ac.getCar(0).sessionID } }, false)
+      updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, false)
     end
     ui.text("You are not a granted operator on this server.")
   end
