@@ -1201,6 +1201,7 @@ local startLightsEvent = ac.OnlineEvent({
   endFalseStart = ac.StructItem.boolean(),
   lightPosition = ac.StructItem.vec3(),
   lightRotation = ac.StructItem.int8(),
+  friendlyCompetitionMode = ac.StructItem.boolean(),
 }, function(sender, data)
   if not canRun(true) then return end
   if data.endFalseStart then
@@ -1214,11 +1215,17 @@ local startLightsEvent = ac.OnlineEvent({
       end
     end
     if sender.index > 0 then
+      local senderCarPostion = sender.position;
+      local range = data.falseStart and FALSE_START_TRIGGER_RANGE or AppSettings.triggerRange
+      local distance
+      if data.friendlyCompetitionMode and not friendlyCompetitionMode then
+        distance = senderCarPostion:distance(slMgr.getTrackLightPosition())
+        if distance > range then
+          return
+        end
+      end
       if AppSettings.useTriggerRange then
         local ourCarPosition = ac.getCar(0).position;
-        local senderCarPostion = sender.position;
-        local range = data.falseStart and FALSE_START_TRIGGER_RANGE or AppSettings.triggerRange
-        local distance
         if slMgr.trackHasLightMesh() then
           distance = ourCarPosition:distance(slMgr.getTrackLightPosition())
         elseif data.lightPosition and data.lightPosition ~= vec3() then
@@ -1297,7 +1304,7 @@ local function onStartLights()
       end
     elseif friendlyCompetitionMode then
       if slMgr.trackHasLightMesh() then
-        startLightsEvent { start = true, falseStart = false, endFalseStart = false, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation() }
+        startLightsEvent { start = true, falseStart = false, endFalseStart = false, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), friendlyCompetitionMode = true }
       else
         ac.setMessage("Start Lights", "No track light configured yet.", 'illegal')
       end
@@ -1327,7 +1334,11 @@ local function onFalseStart()
           ac.setMessage("Start Lights", "Competition mode activated, only admins can operate the lights.", 'illegal')
         end
       elseif friendlyCompetitionMode then
-        startLightsEvent { start = false, falseStart = true, endFalseStart = false, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation() }
+        if slMgr.trackHasLightMesh() then
+          startLightsEvent { start = false, falseStart = true, endFalseStart = false, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), friendlyCompetitionMode = true }
+        else
+          ac.setMessage("Start Lights", "No track light configured yet.", 'illegal')
+        end
       elseif slMgr.trackHasLightMesh() then
         if ac.getCar(0).position:distance(slMgr.getTrackLightPosition()) <= FALSE_START_TRIGGER_RANGE then
           startLightsEvent { start = false, falseStart = true, endFalseStart = false, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation() }
@@ -1349,7 +1360,7 @@ local function onFalseStart()
           ac.setMessage("Start Lights", "Competition mode activated, only admins can operate the lights.", 'illegal')
         end
       elseif friendlyCompetitionMode then
-        startLightsEvent { start = false, falseStart = false, endFalseStart = true, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation() }
+        startLightsEvent { start = false, falseStart = false, endFalseStart = true, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), friendlyCompetitionMode = true }
       else
         startLightsEvent { start = false, falseStart = false, endFalseStart = true, lightPosition = nil, lightRotation = 0 }
       end
@@ -1587,7 +1598,7 @@ function script.windowSettings(dt)
         AppSettings.useTriggerRange = not AppSettings.useTriggerRange
       end
       if AppSettings.useTriggerRange then
-        AppSettings.triggerRange = ui.slider("Trigger Range (m)", AppSettings.triggerRange, 1, 100)
+        AppSettings.triggerRange = ui.slider("Trigger Range (m)", AppSettings.triggerRange, 10, 100)
       else
         AppSettings.triggerRange = DEFAULT_TRIGGER_RANGE -- reset to default if not using range
       end
