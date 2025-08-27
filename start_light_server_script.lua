@@ -1007,6 +1007,7 @@ local editionMode = false
 local BUTTON_SIZE = vec2(150, 50)
 local checkAdminPrivilegesTimer = 0
 local miniHUDrunning = false
+local miniHUDstarted = false
 
 ---can the script run
 ---@param useHud boolean
@@ -1136,6 +1137,7 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
   key = ac.StructItem.key("Start_Lights_toggle_competition_mode_events"),
   competitionMode = ac.StructItem.boolean(),
   grantedUsers = ac.StructItem.array(ac.StructItem.int8(), 16),
+  admins = ac.StructItem.array(ac.StructItem.int8(), 16),
   lightPosition = ac.StructItem.vec3(),
   lightRotation = ac.StructItem.int8(),
   forceUpdate = ac.StructItem.boolean()
@@ -1149,9 +1151,12 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
     slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
   end
   --table.clear(grantedUsers)
-  addGrantedUsers(sender.sessionID)
+  --addGrantedUsers(sender.sessionID)
   for i = 0, 15, 1 do
     addGrantedUsers(data.grantedUsers[i])
+  end
+  for i = 0, 15, 1 do
+    addAdmin(data.admins[i])
   end
   if data.competitionMode then
     ac.setMessage("Start Lights", "Competition Mode activated")
@@ -1269,6 +1274,7 @@ local requestLightsData = ac.OnlineEvent({
     {
       competitionMode = competitionMode,
       grantedUsers = grantedUsers,
+      admins = admins,
       lightPosition = slMgr.getTrackLightPosition(),
       lightRotation =
           slMgr.getTrackLightsRotation()
@@ -1394,6 +1400,10 @@ ac.onClientDisconnected(function(connectedCarIndex, connectedSessionID)
 end)
 
 function script.windowCompetitionMode(dt)
+  if not miniHUDstarted then
+    requestLightsData{}
+    miniHUDstarted = true
+  end
   miniHUDrunning = true
   if not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
     if SLightsAppConnection.isAdmin then
