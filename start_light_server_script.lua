@@ -1135,7 +1135,7 @@ end
 local toggleCompetitionModeEvent = ac.OnlineEvent({
   key = ac.StructItem.key("Start_Lights_toggle_competition_mode_events"),
   competitionMode = ac.StructItem.boolean(),
-  grantedUsers = ac.StructItem.array(ac.StructItem.int8(), 10),
+  grantedUsers = ac.StructItem.array(ac.StructItem.int8(), 16),
   lightPosition = ac.StructItem.vec3(),
   lightRotation = ac.StructItem.int8(),
   forceUpdate = ac.StructItem.boolean()
@@ -1150,7 +1150,7 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
   end
   --table.clear(grantedUsers)
   addGrantedUsers(sender.sessionID)
-  for i = 0, 10, 1 do
+  for i = 0, 15, 1 do
     addGrantedUsers(data.grantedUsers[i])
   end
   if data.competitionMode then
@@ -1163,23 +1163,23 @@ end, ac.SharedNamespace.Shared, false, { processPostponed = true })
 
 local updateGrantedUsers = ac.OnlineEvent({
   key = ac.StructItem.key("Start_Lights_update_granted_users_events"),
-  addedGrantedUsers = ac.StructItem.array(ac.StructItem.int8(), 64),
-  removedGrantedUsers = ac.StructItem.array(ac.StructItem.int8(), 64),
-  admins = ac.StructItem.array(ac.StructItem.int8(), 64),
+  addedGrantedUsers = ac.StructItem.array(ac.StructItem.int8(), 16),
+  removedGrantedUsers = ac.StructItem.array(ac.StructItem.int8(), 16),
+  admins = ac.StructItem.array(ac.StructItem.int8(), 16),
 }, function(sender, data)
   if (sender.index == 0) then
     return
   end
   addGrantedUsers(sender.sessionID)
-  for i = 0, 63, 1 do
+  for i = 0, 15, 1 do
     addGrantedUsers(data.addedGrantedUsers[i])
   end
-  for i = 0, 63, 1 do
+  for i = 0, 15, 1 do
     if table.contains(grantedUsers, data.removedGrantedUsers[i]) then
       table.removeItem(grantedUsers, data.removedGrantedUsers[i])
     end
   end
-  for i = 0, 63, 1 do
+  for i = 0, 15, 1 do
     addAdmin(data.admins[i])
   end
 end, ac.SharedNamespace.Shared)
