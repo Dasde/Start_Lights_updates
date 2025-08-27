@@ -1447,7 +1447,7 @@ function script.windowContentCompetitionMode(dt)
       unSavedCompetitionMode = not unSavedCompetitionMode
       competitionModeChanged = true
     end
-    if (sim.isAdmin) then
+    if (sim.isAdmin or SLightsAppConnection.isAdmin) then
       ui.setCursorX(windowCursor)
       ui.text("Lights operators :")
       if not grantedUsersChanged then
