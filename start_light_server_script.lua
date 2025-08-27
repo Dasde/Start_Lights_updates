@@ -1189,9 +1189,11 @@ local updateGrantedUsers = ac.OnlineEvent({
   end
 end, ac.SharedNamespace.Shared)
 
-if SLightsAppConnection.isAdmin and canRun(true) then
+if SLightsAppConnection.isAdmin then
   addAdmin(ac.getCar(0).sessionID)
-  updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, true)
+  if canRun(true) then
+    updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, true)
+  end
 end
 
 local startLightsEvent = ac.OnlineEvent({
