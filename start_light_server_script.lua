@@ -648,6 +648,7 @@ function slMgr.setAndSaveTrackLights(pos, rotation)
     tl.saveTrackLights()
   end
   if not tl.trackHasLightMesh then
+    ac.log("no track light")
     if serverMode then
       ac.log("display")
       tl.displayLightMesh(modType, true)
