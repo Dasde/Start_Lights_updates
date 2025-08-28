@@ -1155,7 +1155,7 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
   grantedUsers = ac.StructItem.array(ac.StructItem.int8(), 16),
   admins = ac.StructItem.array(ac.StructItem.int8(), 16),
   lightPosition = ac.StructItem.vec3(),
-  lightRotation = ac.StructItem.int8(),
+  lightRotation = ac.StructItem.float(),
   forceUpdate = ac.StructItem.boolean()
 }, function(sender, data)
   if not canRun(true) then return end
@@ -1218,7 +1218,7 @@ local startLightsEvent = ac.OnlineEvent({
   falseStart = ac.StructItem.boolean(),
   endFalseStart = ac.StructItem.boolean(),
   lightPosition = ac.StructItem.vec3(),
-  lightRotation = ac.StructItem.int8(),
+  lightRotation = ac.StructItem.float(),
   friendlyCompetitionMode = ac.StructItem.boolean(),
 }, function(sender, data)
   if not canRun(true) then return end
