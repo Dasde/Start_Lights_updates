@@ -387,19 +387,19 @@ function tl.reloadTrackLights(modType, force, serverMode)
 end
 
 function tl.displayLightMesh(lightType, server_mode)
-    if (trackLightMesh) then
-        trackLightMesh:dispose()
-    end
-    trackLightMesh = displayLights(lightType, trackLightPosition, trackLightsRotation, server_mode)
-    lightsOnTrack = true
+  if (trackLightMesh) then
+    trackLightMesh:dispose()
+  end
+  trackLightMesh = displayLights(lightType, trackLightPosition, trackLightsRotation, server_mode)
+  lightsOnTrack = true
 end
 
 function tl.displayLightMeshAheadCar(lightType, server_mode)
-    if (trackLightMesh) then
-        trackLightMesh:dispose()
-    end
-    local polePosition = ac.getCar(0).bodyTransform:transformPoint(vec3(0, 0, 5))
-    trackLightMesh = displayLights(lightType, polePosition, 0, server_mode)
+  if (trackLightMesh) then
+    trackLightMesh:dispose()
+  end
+  local polePosition = ac.getCar(0).bodyTransform:transformPoint(vec3(0, 0, 5))
+  trackLightMesh = displayLights(lightType, polePosition, 0, server_mode)
 end
 
 function tl:enableEditionMode(dt, lightType, serverMode)
@@ -654,6 +654,8 @@ function slMgr.setAndSaveTrackLights(pos, rotation)
     else
       tl.init(modType, false)
     end
+  else
+    tl.rotateTrackLights(rotation)
   end
 end
 
