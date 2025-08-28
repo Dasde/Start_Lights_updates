@@ -284,6 +284,7 @@ local function loadOnlineConfig(config, lightType, server_mode)
                   server_mode)
               end
               lightsEmbedInTrack = true
+              lightsOnTrack = true
             end)
           end
         end
@@ -390,6 +391,7 @@ function tl.displayLightMesh(lightType, server_mode)
         trackLightMesh:dispose()
     end
     trackLightMesh = displayLights(lightType, trackLightPosition, trackLightsRotation, server_mode)
+    lightsOnTrack = true
 end
 
 function tl.displayLightMeshAheadCar(lightType, server_mode)
@@ -464,7 +466,7 @@ function tl.getLightId(position)
 end
 
 function tl.trackHasLightMesh()
-  return lightsOnTrack and trackLightPosition or lightsEmbedInTrack
+  return (lightsOnTrack and trackLightPosition) or lightsEmbedInTrack
 end
 
 function tl.trackHasEmbedLightMesh()
@@ -648,15 +650,11 @@ function slMgr.setAndSaveTrackLights(pos, rotation)
     tl.saveTrackLights()
   end
   if not tl.trackHasLightMesh then
-    ac.log("no track light")
     if serverMode then
-      ac.log("display")
       tl.displayLightMesh(modType, true)
     else
       tl.init(modType, false)
     end
-  else
-    ac.log("light on track")
   end
 end
 
