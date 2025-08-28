@@ -162,7 +162,7 @@ local oldTrackLightsRotation
 ---@param server_mode? boolean
 ---@return ac.SceneReference
 local function displayLights(lightType, position, rotY, server_mode)
-  local rootNode = ac.findNodes('trackRoot:yes')   --'carsRoot:yes') --'trackRoot:yes')
+  local rootNode = ac.findNodes('trackRoot:yes') --'carsRoot:yes') --'trackRoot:yes')
   local lightMesh
   oldTrackLightPosition = trackLightPosition and trackLightPosition:clone() or vec3()
   oldTrackLightsRotation = trackLightsRotation
@@ -385,12 +385,19 @@ function tl.reloadTrackLights(modType, force, serverMode)
   end
 end
 
-function tl.displayLightMesh(lightType)
-  if (trackLightMesh) then
-    trackLightMesh:dispose()
-  end
-  local polePosition = ac.getCar(0).bodyTransform:transformPoint(vec3(0, 0, 5))
-  trackLightMesh = displayLights(lightType, polePosition, 0)
+function tl.displayLightMesh(lightType, server_mode)
+    if (trackLightMesh) then
+        trackLightMesh:dispose()
+    end
+    trackLightMesh = displayLights(lightType, trackLightPosition, trackLightsRotation, server_mode)
+end
+
+function tl.displayLightMeshAheadCar(lightType, server_mode)
+    if (trackLightMesh) then
+        trackLightMesh:dispose()
+    end
+    local polePosition = ac.getCar(0).bodyTransform:transformPoint(vec3(0, 0, 5))
+    trackLightMesh = displayLights(lightType, polePosition, 0, server_mode)
 end
 
 function tl:enableEditionMode(dt, lightType, serverMode)
@@ -639,8 +646,12 @@ function slMgr.setAndSaveTrackLights(pos, rotation)
   if not serverMode then
     tl.saveTrackLights()
   end
-  if not tl.trackHasLightMesh and not serverMode then
-    tl.init(modType, false)
+  if not tl.trackHasLightMesh then
+    if serverMode then
+      tl.displayLightMesh(modType, true)
+    else
+      tl.init(modType, false)
+    end
   end
 end
 
@@ -670,7 +681,7 @@ function slMgr.SetIsYellowBlinking(isBlinking)
     start_lights_running = true
     TLightsConnection.YellowBlinking = true
     if not tl.trackHasLightMesh() and use3DLights then
-      tl.displayLightMesh(modType)
+      tl.displayLightMeshAheadCar(modType, serverMode)
     end
     tl.setTrackLightColor(1, tl.TrackLightColors.orange)
     tl.setTrackLightColor(2, tl.TrackLightColors.orange)
@@ -747,7 +758,7 @@ function slMgr.triggerStartLights(greenDuration, _isInitiator)
   show_start_lights = true
 
   if not tl.trackHasLightMesh() and use3DLights then
-    tl.displayLightMesh(modType)
+    tl.displayLightMeshAheadCar(modType, serverMode)
   end
 
   lhud.hideLights()
