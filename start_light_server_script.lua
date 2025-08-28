@@ -150,6 +150,7 @@ local lightsOnTrack = false
 local lightsEmbedInTrack = false
 local trackLightMesh --- @type ac.SceneReference
 local trackLightPosition
+local trackLightPositionOffset
 local trackLightsRotation
 local oldTrackLightPosition
 local oldTrackLightsRotation
@@ -161,7 +162,7 @@ local oldTrackLightsRotation
 ---@param server_mode? boolean
 ---@return ac.SceneReference
 local function displayLights(lightType, position, rotY, server_mode)
-  local rootNode = ac.findNodes('trackRoot:yes') --'carsRoot:yes') --'trackRoot:yes')
+  local rootNode = ac.findNodes('trackRoot:yes')   --'carsRoot:yes') --'trackRoot:yes')
   local lightMesh
   oldTrackLightPosition = trackLightPosition and trackLightPosition:clone() or vec3()
   oldTrackLightsRotation = trackLightsRotation
@@ -177,6 +178,7 @@ local function displayLights(lightType, position, rotY, server_mode)
           nbLights = 4
           lightsDirection = LIGHTS_DIRECTION.bottom
           trackLightMesh:setPosition(position)
+          trackLightPositionOffset = vec3()
           if rotY ~= 0 then
             trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
           end
@@ -187,6 +189,7 @@ local function displayLights(lightType, position, rotY, server_mode)
     lightPrefix = "start_"
     nbLights = 4
     lightsDirection = LIGHTS_DIRECTION.bottom
+    trackLightPositionOffset = vec3()
   else
     if server_mode then
       web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/letsgo.zip",
@@ -196,8 +199,8 @@ local function displayLights(lightType, position, rotY, server_mode)
           nbLights = 3
           lightsDirection = LIGHTS_DIRECTION.top
           trackLightMesh:findMeshes("Objet006"):setTransparent(true)
-          position:add(vec3(0, 0.165, 0))
-          trackLightMesh:setPosition(position)
+          trackLightPositionOffset = vec3(0, 0.165, 0)
+          trackLightMesh:setPosition(position:clone():add(trackLightPositionOffset))
           if rotY ~= 0 then
             trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
           end
@@ -209,9 +212,9 @@ local function displayLights(lightType, position, rotY, server_mode)
     nbLights = 3
     lightsDirection = LIGHTS_DIRECTION.top
     lightMesh:findMeshes("Objet006"):setTransparent(true)
-    position:add(vec3(0, 0.165, 0))
+    trackLightPositionOffset = vec3(0, 0.165, 0)
   end
-  lightMesh:setPosition(position)
+  lightMesh:setPosition(position:clone():add(trackLightPositionOffset))
   if rotY ~= 0 then
     lightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
   end
@@ -482,7 +485,7 @@ function tl.setTrackLightPosition(pos)
   oldTrackLightPosition = pos:clone()
   trackLightPosition = pos
   if trackLightMesh then
-    trackLightMesh:setPosition(pos)
+    trackLightMesh:setPosition(pos:clone():add(trackLightPositionOffset))
   end
 end
 
@@ -1412,13 +1415,14 @@ ac.onClientDisconnected(function(connectedCarIndex, connectedSessionID)
   end
 end)
 
-local descFriendlyComp = "This mode is for friendly battles. \nEvery driver has to activate it to participate.\nWith this mode every driver can activate the start lights without range restrictions.\nThe lights will be only activated for those with that mode activated"
+local descFriendlyComp =
+"This mode is for friendly battles. \nEvery driver has to activate it to participate.\nWith this mode every driver can activate the start lights without range restrictions.\nThe lights will be only activated for those with that mode activated"
 local maxDescFriendlyCompWidth = 0
 local maxDescFriendlyCompWidthMiniHUD = 0
 
 function script.windowCompetitionMode(dt)
   if not miniHUDstarted then
-    requestLightsData{}
+    requestLightsData {}
     miniHUDstarted = true
   end
   miniHUDrunning = true
@@ -1463,7 +1467,7 @@ function script.windowContentCompetitionMode(dt)
     local windowCursor = 20
     if slMgr.trackHasLightMesh() then
       if ui.button("Force update start light position") then
-        toggleCompetitionModeEvent { competitionMode = competitionMode, grantedUsers = grantedUsers, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), forceUpdate = true }
+        toggleCompetitionModeEvent { competitionMode = competitionMode, grantedUsers = grantedUsers, admins = admins, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), forceUpdate = true }
       end
     end
 
@@ -1525,8 +1529,8 @@ function script.windowContentCompetitionMode(dt)
             {
               competitionMode = unSavedCompetitionMode,
               grantedUsers = grantedUsers,
-              lightPosition = slMgr
-                  .getTrackLightPosition(),
+              admins = admins,
+              lightPosition = slMgr.getTrackLightPosition(),
               lightRotation = slMgr.getTrackLightsRotation()
             }, true)
           competitionModeChanged = false
@@ -1550,17 +1554,17 @@ function script.windowContentCompetitionMode(dt)
     ui.setCursorX(10)
     local descFriendlyCompWidth
     if miniHUDrunning then
-        if maxDescFriendlyCompWidthMiniHUD == 0 then
-          maxDescFriendlyCompWidthMiniHUD = ui.measureText(descFriendlyComp).x + 10
-        end
-        descFriendlyCompWidth = maxDescFriendlyCompWidthMiniHUD
+      if maxDescFriendlyCompWidthMiniHUD == 0 then
+        maxDescFriendlyCompWidthMiniHUD = ui.measureText(descFriendlyComp).x + 10
+      end
+      descFriendlyCompWidth = maxDescFriendlyCompWidthMiniHUD
     else
       if maxDescFriendlyCompWidth == 0 then
-          maxDescFriendlyCompWidth = ui.measureText(descFriendlyComp).x
+        maxDescFriendlyCompWidth = ui.measureText(descFriendlyComp).x
       end
       descFriendlyCompWidth = maxDescFriendlyCompWidth
     end
-    ui.textAligned(descFriendlyComp,0, vec2(descFriendlyCompWidth,100))
+    ui.textAligned(descFriendlyComp, 0, vec2(descFriendlyCompWidth, 100))
     ui.setCursorX(10)
     if ui.checkbox("Toggle Friendly Competition Mode", SLightsAppConnection.friendlyCompetitionMode) then
       SLightsAppConnection.friendlyCompetitionMode = not SLightsAppConnection.friendlyCompetitionMode
