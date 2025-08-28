@@ -466,7 +466,7 @@ function tl.getLightId(position)
 end
 
 function tl.trackHasLightMesh()
-  return (lightsOnTrack and trackLightPosition) or lightsEmbedInTrack
+  return lightsOnTrack and trackLightPosition or lightsEmbedInTrack
 end
 
 function tl.trackHasEmbedLightMesh()
@@ -642,23 +642,18 @@ function slMgr.getTrackLightsRotation()
 end
 
 function slMgr.setAndSaveTrackLights(pos, rotation)
-  --if tl.getTrackLightPosition() == pos and tl.getTrackLightsRotation() == rotation then return end
+  if tl.getTrackLightPosition() == pos and tl.getTrackLightsRotation() == rotation then return end
   tl.setTrackLightPosition(pos)
-  ac.debug('track light posistion', pos)
   tl.setTrackLightsRotation(rotation)
   if not serverMode then
     tl.saveTrackLights()
   end
-  ac.debug("has light embed", tl.trackHasEmbedLightMesh())
-  ac.debug("has light mesh", tl.trackHasLightMesh())
-  if not tl.trackHasLightMesh then
+  if not tl.trackHasLightMesh() then
     if serverMode then
       tl.displayLightMesh(modType, true)
     else
       tl.init(modType, false)
     end
-  else
-    ac.log("has track light")
   end
 end
 
