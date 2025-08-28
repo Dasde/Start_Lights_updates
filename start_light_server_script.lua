@@ -1586,7 +1586,7 @@ function script.windowContentCompetitionMode(dt)
     end
     ui.newLine()
   end
-  if competitionMode or SLightsAppConnection.friendlyCompetitionMode then
+  if (competitionMode and sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) or SLightsAppConnection.friendlyCompetitionMode then
     ui.setCursorX(30)
     if ui.button("Trigger Start!", buttonSize) then
       onStartLights()
