@@ -183,7 +183,7 @@ local function displayLights(lightType, position, rotY, server_mode)
             trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
           end
         end)
-      return
+      return trackLightMesh
     end
     lightMesh = rootNode:loadKN5("content/cars/vdm_lights/vdm_lights.kn5")
     lightPrefix = "start_"
@@ -205,7 +205,7 @@ local function displayLights(lightType, position, rotY, server_mode)
             trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
           end
         end)
-      return
+      return trackLightMesh
     end
     lightMesh = rootNode:loadKN5("assets/letsgo.kn5")
     lightPrefix = "go0"
