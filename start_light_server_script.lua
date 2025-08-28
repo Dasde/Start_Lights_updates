@@ -640,8 +640,9 @@ function slMgr.getTrackLightsRotation()
 end
 
 function slMgr.setAndSaveTrackLights(pos, rotation)
-  if tl.getTrackLightPosition() == pos and tl.getTrackLightsRotation() == rotation then return end
+  --if tl.getTrackLightPosition() == pos and tl.getTrackLightsRotation() == rotation then return end
   tl.setTrackLightPosition(pos)
+  ac.debug('track light posistion', pos)
   tl.setTrackLightsRotation(rotation)
   if not serverMode then
     tl.saveTrackLights()
