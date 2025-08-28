@@ -649,6 +649,8 @@ function slMgr.setAndSaveTrackLights(pos, rotation)
   if not serverMode then
     tl.saveTrackLights()
   end
+  ac.debug("has light embed", tl.trackHasEmbedLightMesh())
+  ac.debug("has light mesh", tl.trackHasLightMesh())
   if not tl.trackHasLightMesh then
     if serverMode then
       tl.displayLightMesh(modType, true)
