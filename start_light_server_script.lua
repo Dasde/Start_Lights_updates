@@ -655,6 +655,8 @@ function slMgr.setAndSaveTrackLights(pos, rotation)
     else
       tl.init(modType, false)
     end
+  else
+    ac.log("light on track")
   end
 end
 
