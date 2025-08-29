@@ -991,7 +991,7 @@ if ac.isLuaAppRunning("Traffic_Lights") then
   ac.uninstallApp("Traffic_Lights")
 end
 
-local isAppRunning = ac.isLuaAppRunning("Start_Lights")
+local isAppRunning = SLightsAppConnection.appConnected or ac.isLuaAppRunning("Start_Lights")
 ---can the script run
 ---@return boolean
 local function canRun()
