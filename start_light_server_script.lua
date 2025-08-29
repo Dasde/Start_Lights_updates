@@ -1015,9 +1015,9 @@ if SERVER_MODE then
   end)
   local sim = ac.getSim()
   local waitStartTime = sim.systemTime;
-  while waitStartTime + 5 > sim.systemTime do
+ -- while waitStartTime + 5 > sim.systemTime do
     -- wait to let the app start if it is activated
-  end
+  --end
   if SLightsAppConnection.appConnected or ac.isLuaAppRunning("Start_Lights") then
     ac.log("ciao")
     return
