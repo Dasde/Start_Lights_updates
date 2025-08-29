@@ -929,7 +929,7 @@ end
 --- START LIGHTS
 local update = {}
 local SERVER_MODE = __dirname == nil
-local SLKey = ac.getCarID(0) .. "_startLights"
+local SLKey = ac.getCarID(0) .. "_startLightsApp"
 local SLSharedData = {
   ac.StructItem.key(SLKey .. "_" .. 0),
   serverScriptConnected = ac.StructItem.boolean(),
@@ -991,6 +991,13 @@ if ac.isLuaAppRunning("Traffic_Lights") then
   ac.uninstallApp("Traffic_Lights")
 end
 
+local isAppRunning = ac.isLuaAppRunning("Start_Lights")
+---can the script run
+---@return boolean
+local function canRun()
+  if SERVER_MODE and isAppRunning then return false end
+  return true
+end
 if SERVER_MODE then
   local function loadOnlineConfig(online_extras)
     for index, section in online_extras:iterate('TRACK_START_LIGHT_OPERATOR') do
@@ -1006,11 +1013,14 @@ if SERVER_MODE then
   ac.onOnlineWelcome(function(message, config)
     loadOnlineConfig(config)
   end)
+  if isAppRunning then
+    return
+  end
 end
+
 
 slMgr.init(AppSettings.classicLightsScale, AppSettings.useSound, AppSettings.classicLightsOrientation,
   AppSettings.lightsModType, AppSettings.sendChatMessage, AppSettings.use3DLights, SERVER_MODE)
-
 if not SERVER_MODE then
   update.init("Start_Lights", "https://raw.githubusercontent.com/Dasde/Start_Lights_updates/refs/heads/main/manifest.ini",
     "https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/Start_Lights.zip")
@@ -1032,22 +1042,6 @@ local sim = ac.getSim()
 local editionMode = false
 local BUTTON_SIZE = vec2(150, 50)
 local checkAdminPrivilegesTimer = 0
-local miniHUDrunning = false
-local miniHUDstarted = false
-
----can the script run
----@param useHud boolean
----@return boolean
-local function canRun(useHud)
-  if SERVER_MODE then return true end
-  if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
-    if miniHUDrunning and useHud then
-      return true
-    end
-    return false
-  end
-  return true
-end
 
 ac.checkAdminPrivileges()
 --local EDIT_TEXT_SIZE = vec2(150,100)
@@ -1108,7 +1102,6 @@ end
 ---Trigger the start lights
 ---@param _isInitiator boolean
 local function triggerStartLights(_isInitiator)
-  if not canRun(true) then return end
   if slMgr.isYellowBlinking() then return end
   if not SERVER_MODE then
     ac.setAppOpen("Start_Lights")
@@ -1135,7 +1128,6 @@ local function triggerStartLights(_isInitiator)
 end
 
 local function falseStart(start)
-  if not canRun(true) then return end
   if start and not SERVER_MODE then
     ac.setAppOpen("Start_Lights")
     ac.setAppWindowVisible("Start_Lights")
@@ -1168,7 +1160,6 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
   lightRotation = ac.StructItem.float(),
   forceUpdate = ac.StructItem.boolean()
 }, function(sender, data)
-  if not canRun(true) then return end
   if (SLightsAppConnection.competitionMode == data.competitionMode and sender.index == 0) then
     return
   end
@@ -1176,8 +1167,8 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
   if (not slMgr.trackHasLightMesh() or data.forceUpdate) and data.lightPosition and data.lightPosition ~= vec3() then
     slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
   end
-  --table.clear(grantedUsers)
-  --addGrantedUsers(sender.sessionID)
+  -- table.clear(grantedUsers)
+  -- addGrantedUsers(sender.sessionID)
   for i = 0, 15, 1 do
     addGrantedUsers(data.grantedUsers[i])
   end
@@ -1217,9 +1208,7 @@ end, ac.SharedNamespace.Shared)
 
 if SLightsAppConnection.isAdmin then
   addAdmin(ac.getCar(0).sessionID)
-  if canRun(true) then
     updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, true)
-  end
 end
 
 local startLightsEvent = ac.OnlineEvent({
@@ -1231,7 +1220,6 @@ local startLightsEvent = ac.OnlineEvent({
   lightRotation = ac.StructItem.float(),
   friendlyCompetitionMode = ac.StructItem.boolean(),
 }, function(sender, data)
-  if not canRun(true) then return end
   if data.endFalseStart then
     falseStart(false)
     return
@@ -1301,7 +1289,6 @@ end, ac.SharedNamespace.Shared)
 local requestLightsData = ac.OnlineEvent({
   key = ac.StructItem.key("Start_Lights_request_data_events"),
 }, function(sender, data)
-  if not canRun(true) then return end
   if ((#admins > 0 or #grantedUsers > 0) and not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID))) or not slMgr.trackHasLightMesh() then
     return
   end
@@ -1311,14 +1298,12 @@ local requestLightsData = ac.OnlineEvent({
       grantedUsers = grantedUsers,
       admins = admins,
       lightPosition = slMgr.getTrackLightPosition(),
-      lightRotation =
-          slMgr.getTrackLightsRotation()
+      lightRotation = slMgr.getTrackLightsRotation()
     }, false, sender.sessionID)
 end, ac.SharedNamespace.Shared)
 requestLightsData({})
 
 local function onStartLights()
-  if not canRun(true) then return end
   if (sim.isOnlineRace) then
     if SLightsAppConnection.competitionMode then
       if (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
@@ -1352,7 +1337,6 @@ local function onStartLights()
 end
 
 local function onFalseStart()
-  if not canRun(true) then return end
   if (not slMgr.isYellowBlinking()) then
     if (sim.isOnlineRace) then
       if SLightsAppConnection.competitionMode then
@@ -1412,12 +1396,11 @@ local function reloadReplayData()
   end
 end
 
-if sim.isReplayActive and canRun(true) then
+if sim.isReplayActive then
   reloadReplayData()
 end
 
 ac.onClientConnected(function(connectedCarIndex, connectedSessionID)
-  if not canRun(true) then return end
   if (SLightsAppConnection.isAdmin or sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
     addAdmin(ac.getCar(0).sessionID)
     updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, false, connectedSessionID)
@@ -1425,7 +1408,6 @@ ac.onClientConnected(function(connectedCarIndex, connectedSessionID)
 end)
 
 ac.onClientDisconnected(function(connectedCarIndex, connectedSessionID)
-  if not canRun(true) then return end
   if not verifySessionID(connectedSessionID) then return end
   if (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
     if table.contains(grantedUsers, connectedSessionID) then
@@ -1442,12 +1424,8 @@ local descFriendlyComp =
 "This mode is for friendly battles. \nEvery driver has to activate it to participate.\nWith this mode every driver can activate the start lights without range restrictions.\nThe lights will be only activated for those with that mode activated"
 local maxDescFriendlyCompWidth = 0
 local maxDescFriendlyCompWidthMiniHUD = 0
-
+local miniHUDrunning
 function script.windowCompetitionMode(dt)
-  if not miniHUDstarted then
-    requestLightsData {}
-    miniHUDstarted = true
-  end
   miniHUDrunning = true
   if not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
     if SLightsAppConnection.isAdmin then
@@ -1493,7 +1471,6 @@ function script.windowContentCompetitionMode(dt)
         toggleCompetitionModeEvent { competitionMode = SLightsAppConnection.competitionMode, grantedUsers = grantedUsers, admins = admins, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), forceUpdate = true }
       end
     end
-
     if not competitionModeChanged then
       unSavedCompetitionMode = SLightsAppConnection.competitionMode
     end
@@ -1548,14 +1525,7 @@ function script.windowContentCompetitionMode(dt)
         grantedUsers = table.clone(unSavedGrantedUsers)
         if competitionModeChanged then
           --competitionMode = unSavedCompetitionMode
-          toggleCompetitionModeEvent(
-            {
-              competitionMode = unSavedCompetitionMode,
-              grantedUsers = grantedUsers,
-              admins = admins,
-              lightPosition = slMgr.getTrackLightPosition(),
-              lightRotation = slMgr.getTrackLightsRotation()
-            }, true)
+          toggleCompetitionModeEvent { competitionMode = unSavedCompetitionMode, grantedUsers = grantedUsers, admins = admins, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation() }
           competitionModeChanged = false
           grantedUsersChanged = false
         else
@@ -1948,7 +1918,6 @@ end
 
 function script.windowMain(dt)
   miniHUDrunning = false
-  if not canRun(false) then return end
   if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
     script.drawUI(dt)
   else
@@ -1974,13 +1943,6 @@ local windowSize = vec2(500, 500)
 local settingsSize = vec2(500, 500)
 local isMouseDragging
 function script.drawUI(dt)
-  if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
-    if not SERVER_MODE then
-      ac.setAppWindowVisible("Start_Lights", "main", false)
-      ac.setWindowOpen("main", false)
-      return
-    end
-  end
   if SERVER_MODE then
     ui.restoreCursor()
     if isMouseDragging then
@@ -2053,7 +2015,6 @@ function script.drawUI(dt)
 end
 
 ac.onSessionStart(function(sessionIndex, restarted)
-  if not canRun(true) then return end
   if restarted then
     replayDataCount = 0
     ac.writeReplayBlob("start_lights_count", 0)
@@ -2062,7 +2023,7 @@ ac.onSessionStart(function(sessionIndex, restarted)
 end)
 
 ac.onChatMessage(function(message, senderCarIndex, senderSessionID)
-  if not canRun(true) then return end
+
   if message:startsWith("[StartLights]") then
     return true
     ---@diagnostic disable-next-line: missing-return
@@ -2070,7 +2031,6 @@ ac.onChatMessage(function(message, senderCarIndex, senderSessionID)
 end)
 
 function script.update(dt)
-  if not canRun(true) then return end
   isPaused = ac.getGameDeltaT() == 0
   if sim.isReplayActive then
     reloadReplayData()
