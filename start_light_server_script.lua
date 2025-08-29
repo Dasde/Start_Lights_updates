@@ -1566,6 +1566,7 @@ function script.windowContentCompetitionMode(dt)
   end
   if not SLightsAppConnection.competitionMode then
     ui.setNextTextBold()
+    ui.setCursorX(10)
     ui.text("Friendly Competition Mode")
     ui.setCursorX(10)
     local descFriendlyCompWidth
@@ -1886,12 +1887,19 @@ function script.windowSettings(dt)
       ui.newLine()
       ui.setNextTextBold()
       ui.bulletText("To add the Start Lights script to your server add this to your configuration :")
-      ui.text(
-        "[SCRIPT_0]\nSCRIPT = 'https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/start_light_server_script.lua'")
+      local addScriptSnippet = "[SCRIPT_0]\nSCRIPT = 'https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/start_light_server_script.lua'"
+      ui.text(addScriptSnippet)
+      if ui.button("Copy to clipboard") then
+        ac.setClipboardText(addScriptSnippet)
+      end
       ui.newLine()
       ui.setNextTextBold()
       ui.bulletText("Operators can be added like this :")
-      ui.text("[TRACK_START_LIGHT_OPERATOR_0]\nSTEAM_ID=Steam id of the operator")
+      local addOperatorSnippet = "[TRACK_START_LIGHT_OPERATOR_0]\nSTEAM_ID=Steam id of the operator"
+      ui.text(addOperatorSnippet)
+      if ui.button("Copy to clipboard") then
+        ac.setClipboardText(addOperatorSnippet)
+      end
       ui.newLine()
       ui.setNextTextBold()
       ui.bulletText("Set custom semaphore position like this :")
