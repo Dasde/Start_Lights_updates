@@ -1014,6 +1014,7 @@ if SERVER_MODE then
     loadOnlineConfig(config)
   end)
   if isAppRunning then
+    ac.log("ciao")
     return
   end
 end
