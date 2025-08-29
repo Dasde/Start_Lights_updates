@@ -926,6 +926,10 @@ function slMgr.getTrackLightPosition()
   return tl.getTrackLightPosition()
 end
 
+function slMgr.disposeLightMesh()
+  tl.removeLightMesh()
+end
+
 --- START LIGHTS
 local update = {}
 local SERVER_MODE = __dirname == nil
@@ -941,7 +945,6 @@ local SLSharedData = {
 local SLightsAppConnection = ac.connect(SLSharedData, false, ac.SharedNamespace.Shared)
 if SERVER_MODE then
   SLightsAppConnection.serverScriptConnected = true
-
 else
   SLightsAppConnection.appConnected = true
 end
@@ -994,9 +997,9 @@ end
 
 ---can the script run
 ---@return boolean
-local function canRun()
-  if SERVER_MODE and (SLightsAppConnection.appConnected or ac.isLuaAppRunning("Start_Lights")) then return false end
-  return true
+local function cannotRun()
+  if SERVER_MODE and SLightsAppConnection.appConnected then return true end
+  return false
 end
 if SERVER_MODE then
   local function loadOnlineConfig(online_extras)
@@ -1013,17 +1016,10 @@ if SERVER_MODE then
   ac.onOnlineWelcome(function(message, config)
     loadOnlineConfig(config)
   end)
-  local sim = ac.getSim()
-  local waitStartTime = sim.systemTime;
- -- while waitStartTime + 5 > sim.systemTime do
-    -- wait to let the app start if it is activated
-  --end
-  if SLightsAppConnection.appConnected or ac.isLuaAppRunning("Start_Lights") then
-    ac.log("ciao")
+  if SLightsAppConnection.appConnected then
     return
   end
 end
-ac.debug("start time", ac.getSim().systemTime)
 
 slMgr.init(AppSettings.classicLightsScale, AppSettings.useSound, AppSettings.classicLightsOrientation,
   AppSettings.lightsModType, AppSettings.sendChatMessage, AppSettings.use3DLights, SERVER_MODE)
@@ -1166,6 +1162,7 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
   lightRotation = ac.StructItem.float(),
   forceUpdate = ac.StructItem.boolean()
 }, function(sender, data)
+  if cannotRun() then return end
   if (SLightsAppConnection.competitionMode == data.competitionMode and sender.index == 0) then
     return
   end
@@ -1195,6 +1192,7 @@ local updateGrantedUsers = ac.OnlineEvent({
   removedGrantedUsers = ac.StructItem.array(ac.StructItem.int8(), 16),
   admins = ac.StructItem.array(ac.StructItem.int8(), 16),
 }, function(sender, data)
+  if cannotRun() then return end
   if (sender.index == 0) then
     return
   end
@@ -1226,6 +1224,7 @@ local startLightsEvent = ac.OnlineEvent({
   lightRotation = ac.StructItem.float(),
   friendlyCompetitionMode = ac.StructItem.boolean(),
 }, function(sender, data)
+  if cannotRun() then return end
   if data.endFalseStart then
     falseStart(false)
     return
@@ -1295,6 +1294,7 @@ end, ac.SharedNamespace.Shared)
 local requestLightsData = ac.OnlineEvent({
   key = ac.StructItem.key("Start_Lights_request_data_events"),
 }, function(sender, data)
+  if cannotRun() then return end
   if ((#admins > 0 or #grantedUsers > 0) and not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID))) or not slMgr.trackHasLightMesh() then
     return
   end
@@ -1407,6 +1407,7 @@ if sim.isReplayActive then
 end
 
 ac.onClientConnected(function(connectedCarIndex, connectedSessionID)
+  if cannotRun() then return end
   if (SLightsAppConnection.isAdmin or sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
     addAdmin(ac.getCar(0).sessionID)
     updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, false, connectedSessionID)
@@ -1414,6 +1415,7 @@ ac.onClientConnected(function(connectedCarIndex, connectedSessionID)
 end)
 
 ac.onClientDisconnected(function(connectedCarIndex, connectedSessionID)
+  if cannotRun() then return end
   if not verifySessionID(connectedSessionID) then return end
   if (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
     if table.contains(grantedUsers, connectedSessionID) then
@@ -1949,6 +1951,7 @@ local windowSize = vec2(500, 500)
 local settingsSize = vec2(500, 500)
 local isMouseDragging
 function script.drawUI(dt)
+  if cannotRun() then return end
   if SERVER_MODE then
     ui.restoreCursor()
     if isMouseDragging then
@@ -2021,6 +2024,7 @@ function script.drawUI(dt)
 end
 
 ac.onSessionStart(function(sessionIndex, restarted)
+  if cannotRun() then return end
   if restarted then
     replayDataCount = 0
     ac.writeReplayBlob("start_lights_count", 0)
@@ -2029,6 +2033,7 @@ ac.onSessionStart(function(sessionIndex, restarted)
 end)
 
 ac.onChatMessage(function(message, senderCarIndex, senderSessionID)
+  if cannotRun() then return end
 
   if message:startsWith("[StartLights]") then
     return true
@@ -2037,6 +2042,11 @@ ac.onChatMessage(function(message, senderCarIndex, senderSessionID)
 end)
 
 function script.update(dt)
+  if SLightsAppConnection.appConnected and SERVER_MODE then
+    if slMgr.trackHasLightMesh() then
+      slMgr.disposeLightMesh()
+    end
+  end
   isPaused = ac.getGameDeltaT() == 0
   if sim.isReplayActive then
     reloadReplayData()
