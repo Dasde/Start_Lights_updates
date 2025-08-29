@@ -1514,6 +1514,9 @@ function script.windowContentCompetitionMode(dt)
       for i, car in ac.iterateCars() do
         local checked = car.index == 0 or table.contains(unSavedGrantedUsers, car.sessionID)
         ui.setCursorX(windowCursor)
+        if table.contains(admins, car.sessionID) then
+          ui.pushDisabled()
+        end
         if car.isConnected then
           ---@diagnostic disable-next-line: param-type-mismatch
           if ui.checkbox(ac.getDriverName(car.index), checked) then
@@ -1525,6 +1528,10 @@ function script.windowContentCompetitionMode(dt)
               table.removeItem(unSavedGrantedUsers, car.sessionID)
             end
           end
+
+        end
+        if table.contains(admins, car.sessionID) then
+          ui.popDisabled()
         end
       end
       grantedUsersChanged = not table.same(grantedUsers, unSavedGrantedUsers)
