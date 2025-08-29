@@ -1018,7 +1018,7 @@ if SERVER_MODE then
     return
   end
 end
-
+ac.debug("start time", ac.getSim().systemTime)
 
 slMgr.init(AppSettings.classicLightsScale, AppSettings.useSound, AppSettings.classicLightsOrientation,
   AppSettings.lightsModType, AppSettings.sendChatMessage, AppSettings.use3DLights, SERVER_MODE)
