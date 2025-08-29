@@ -153,8 +153,8 @@ local SLightsDataConnection = ac.connect(TLSharedData, false, ac.SharedNamespace
 local nbLights = 3
 local lightPrefix = "go0"
 local LIGHTS_DIRECTION = {
-    top = 0,
-    bottom = 1
+  top = 0,
+  bottom = 1
 }
 local lightsDirection = LIGHTS_DIRECTION.bottom;
 local trackLightMesh --- @type ac.SceneReference
@@ -170,81 +170,81 @@ local oldTrackLightsRotation
 ---@param server_mode? boolean
 ---@return ac.SceneReference
 local function displayLights(lightType, position, rotY, server_mode)
-    local rootNode = ac.findNodes('trackRoot:yes') --'carsRoot:yes') --'trackRoot:yes')
-    local lightMesh
-    oldTrackLightPosition = SLightsDataConnection.trackLightPosition and SLightsDataConnection.trackLightPosition:clone() or vec3()
-    oldTrackLightsRotation = SLightsDataConnection.trackLightsRotation
-    SLightsDataConnection.trackLightPosition = position:clone()
-    SLightsDataConnection.trackLightsRotation = rotY
-    if (lightType == tl.LightType.VDM) then
-        if server_mode then
-            web.loadRemoteAssets(
-                "https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/vdm_lights.zip",
-                function(err, folder)
-                    trackLightMesh = rootNode:loadKN5(folder .. "\\vdm_lights.kn5")
-                    lightPrefix = "start_"
-                    nbLights = 4
-                    lightsDirection = LIGHTS_DIRECTION.bottom
-                    trackLightMesh:setPosition(position)
-                    trackLightPositionOffset = vec3()
-                    if rotY ~= 0 then
-                        trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
-                    end
-                end)
-            return trackLightMesh
-        end
-        lightMesh = rootNode:loadKN5("content/cars/vdm_lights/vdm_lights.kn5")
-        lightPrefix = "start_"
-        nbLights = 4
-        lightsDirection = LIGHTS_DIRECTION.bottom
-        trackLightPositionOffset = vec3()
-    else
-        if server_mode then
-            web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/letsgo.zip",
-                function(err, folder)
-                    trackLightMesh = rootNode:loadKN5(folder .. "\\letsgo.kn5")
-                    lightPrefix = "go0"
-                    nbLights = 3
-                    lightsDirection = LIGHTS_DIRECTION.top
-                    trackLightMesh:findMeshes("Objet006"):setTransparent(true)
-                    trackLightPositionOffset = vec3(0, 0.165, 0)
-                    trackLightMesh:setPosition(position:clone():add(trackLightPositionOffset))
-                    if rotY ~= 0 then
-                        trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
-                    end
-                end)
-            return trackLightMesh
-        end
-        lightMesh = rootNode:loadKN5("assets/letsgo.kn5")
-        lightPrefix = "go0"
-        nbLights = 3
-        lightsDirection = LIGHTS_DIRECTION.top
-        lightMesh:findMeshes("Objet006"):setTransparent(true)
-        trackLightPositionOffset = vec3(0, 0.165, 0)
+  local rootNode = ac.findNodes('trackRoot:yes')
+  local lightMesh
+  oldTrackLightPosition = SLightsDataConnection.trackLightPosition and SLightsDataConnection.trackLightPosition:clone() or vec3()
+  oldTrackLightsRotation = SLightsDataConnection.trackLightsRotation
+  SLightsDataConnection.trackLightPosition = position:clone()
+  SLightsDataConnection.trackLightsRotation = rotY
+  if (lightType == tl.LightType.VDM) then
+    if server_mode then
+      web.loadRemoteAssets(
+        "https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/vdm_lights.zip",
+        function(err, folder)
+          trackLightMesh = rootNode:loadKN5(folder .. "\\vdm_lights.kn5")
+          lightPrefix = "start_"
+          nbLights = 4
+          lightsDirection = LIGHTS_DIRECTION.bottom
+          trackLightMesh:setPosition(position)
+          trackLightPositionOffset = vec3()
+          if rotY ~= 0 then
+            trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
+          end
+        end)
+      return trackLightMesh
     end
-    lightMesh:setPosition(position:clone():add(trackLightPositionOffset))
-    if rotY ~= 0 then
-        lightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
+    lightMesh = rootNode:loadKN5("content/cars/vdm_lights/vdm_lights.kn5")
+    lightPrefix = "start_"
+    nbLights = 4
+    lightsDirection = LIGHTS_DIRECTION.bottom
+    trackLightPositionOffset = vec3()
+  else
+    if server_mode then
+      web.loadRemoteAssets("https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/assets/letsgo.zip",
+        function(err, folder)
+          trackLightMesh = rootNode:loadKN5(folder .. "\\letsgo.kn5")
+          lightPrefix = "go0"
+          nbLights = 3
+          lightsDirection = LIGHTS_DIRECTION.top
+          trackLightMesh:findMeshes("Objet006"):setTransparent(true)
+          trackLightPositionOffset = vec3(0, 0.165, 0)
+          trackLightMesh:setPosition(position:clone():add(trackLightPositionOffset))
+          if rotY ~= 0 then
+            trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
+          end
+        end)
+      return trackLightMesh
     end
-    return lightMesh
+    lightMesh = rootNode:loadKN5("assets/letsgo.kn5")
+    lightPrefix = "go0"
+    nbLights = 3
+    lightsDirection = LIGHTS_DIRECTION.top
+    lightMesh:findMeshes("Objet006"):setTransparent(true)
+    trackLightPositionOffset = vec3(0, 0.165, 0)
+  end
+  lightMesh:setPosition(position:clone():add(trackLightPositionOffset))
+  if rotY ~= 0 then
+    lightMesh:setRotation(vec3(0, 1, 0), math.rad(rotY))
+  end
+  return lightMesh
 end
 
 function tl.clearSavedLights(server_mode)
-    tl.removeLightMesh()
-    SLightsDataConnection.lightsOnTrack = false
-    if not server_mode then
-        local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-        if io.exists(trackIniFilename) then
-            ac.pauseFilesWatching(true)
-            os.remove(trackIniFilename)
-            ac.pauseFilesWatching(false)
-        end
+  tl.removeLightMesh()
+  SLightsDataConnection.lightsOnTrack = false
+  if not server_mode then
+    local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+    if io.exists(trackIniFilename) then
+      ac.pauseFilesWatching(true)
+      os.remove(trackIniFilename)
+      ac.pauseFilesWatching(false)
     end
+  end
 end
 
 local function checkTrackHasLightMesh()
-    local mesh = ac.findNodes('trackRoot:yes'):findMeshes("go01")
-    return (mesh:name() ~= "")
+  local mesh = ac.findNodes('trackRoot:yes'):findMeshes("go01")
+  return (mesh:name() ~= "")
 end
 
 ---Load the online config (online extras)
@@ -252,53 +252,53 @@ end
 ---@param lightType tl.LightType
 ---@param server_mode? boolean
 local function loadOnlineConfig(config, lightType, server_mode)
-    local currentLayout = ac.getTrackFullID()
-    if config then
-        --local currentTrack = ac.getTrackID()
-        for index, section in config:iterate('TRACK_START_LIGHT') do
-            --ac.log(section)
-            local track = config:get(section, "TRACK", "")
-            if track == currentLayout then
-                if trackLightMesh then
-                    tl.rotateTrackLights(config:get(section, "ROT", 0))
-                    tl.setTrackLightPosition(vec3(config:get(section, "X", 0), config:get(section, "Y", 0),
-                        config:get(section, "Z", 0)))
-                else
-                    trackLightMesh = displayLights(lightType,
-                        vec3(config:get(section, "X", 0), config:get(section, "Y", 0), config:get(section, "Z", 0)),
-                        config:get(section, "ROT", 0), server_mode)
-                end
-                SLightsDataConnection.lightsEmbedInTrack = true
-            end
+  local currentLayout = ac.getTrackFullID()
+  if config then
+    --local currentTrack = ac.getTrackID()
+    for index, section in config:iterate('TRACK_START_LIGHT') do
+      --ac.log(section)
+      local track = config:get(section, "TRACK", "")
+      if track == currentLayout then
+        if trackLightMesh then
+          tl.rotateTrackLights(config:get(section, "ROT", 0))
+          tl.setTrackLightPosition(vec3(config:get(section, "X", 0), config:get(section, "Y", 0),
+            config:get(section, "Z", 0)))
+        else
+          trackLightMesh = displayLights(lightType,
+            vec3(config:get(section, "X", 0), config:get(section, "Y", 0), config:get(section, "Z", 0)),
+            config:get(section, "ROT", 0), server_mode)
         end
+        SLightsDataConnection.lightsEmbedInTrack = true
+      end
     end
-    if not SLightsDataConnection.lightsEmbedInTrack then
-        web.get('https://api.github.com/repos/Dasde/Start_Lights_tracks/contents', function(err, response)
-            if response then
-                local listTracks = JSON.parse(response.body)
-                for index, track in ipairs(listTracks) do
-                    if track.name == currentLayout .. ".ini" then
-                        web.get(track.download_url, function(err, response)
-                            local trackConfig = ac.INIConfig.parse(response.body)
-                            local section = "TRACK_START_LIGHT"
-                            if trackLightMesh then
-                                tl.rotateTrackLights(trackConfig:get(section, "ROT", 0))
-                                tl.setTrackLightPosition(vec3(trackConfig:get(section, "X", 0),
-                                    trackConfig:get(section, "Y", 0), trackConfig:get(section, "Z", 0)))
-                            else
-                                trackLightMesh = displayLights(lightType,
-                                    vec3(trackConfig:get(section, "X", 0), trackConfig:get(section, "Y", 0),
-                                        trackConfig:get(section, "Z", 0)), trackConfig:get(section, "ROT", 0),
-                                    server_mode)
-                            end
-                            SLightsDataConnection.lightsEmbedInTrack = true
-                            SLightsDataConnection.lightsOnTrack = true
-                        end)
-                    end
-                end
-            end
-        end)
-    end
+  end
+  if not SLightsDataConnection.lightsEmbedInTrack then
+    web.get('https://api.github.com/repos/Dasde/Start_Lights_tracks/contents', function(err, response)
+      if response then
+        local listTracks = JSON.parse(response.body)
+        for index, track in ipairs(listTracks) do
+          if track.name == currentLayout .. ".ini" then
+            web.get(track.download_url, function(err, response)
+              local trackConfig = ac.INIConfig.parse(response.body)
+              local section = "TRACK_START_LIGHT"
+              if trackLightMesh then
+                tl.rotateTrackLights(trackConfig:get(section, "ROT", 0))
+                tl.setTrackLightPosition(vec3(trackConfig:get(section, "X", 0),
+                  trackConfig:get(section, "Y", 0), trackConfig:get(section, "Z", 0)))
+              else
+                trackLightMesh = displayLights(lightType,
+                  vec3(trackConfig:get(section, "X", 0), trackConfig:get(section, "Y", 0),
+                    trackConfig:get(section, "Z", 0)), trackConfig:get(section, "ROT", 0),
+                  server_mode)
+              end
+              SLightsDataConnection.lightsEmbedInTrack = true
+              SLightsDataConnection.lightsOnTrack = true
+            end)
+          end
+        end
+      end
+    end)
+  end
 end
 
 ---Init track lights
@@ -306,56 +306,56 @@ end
 ---@param force boolean
 ---@param server_mode? boolean
 function tl.init(lightType, force, server_mode)
-    SLightsDataConnection.lightsOnTrack = false
-    if trackLightMesh and force then
-        trackLightMesh:dispose()
-        ---@diagnostic disable-next-line: cast-local-type
-        trackLightMesh = nil
-    end
-    if checkTrackHasLightMesh() then
-        lightPrefix = "go0"
-        ac.findNodes('trackRoot:yes'):findMeshes("Objet006"):setTransparent(true)
-        ac.applyContentConfig(-1,
-            "[CONDITION_02]\nNAME = BLINK1\nINPUT = NONE\n[CONDITION_03]\nNAME = BLINK2\nINPUT = NONE\n[CONDITION_04]\nNAME = BLINK3\nINPUT = NONE")
-        SLightsDataConnection.trackLightPosition = ac.findNodes('trackRoot:yes'):findMeshes("go01"):boundingSphere()
-        --trackLightPosition = ac.findNodes('carRoot:0'):findMeshes("green"):boundingSphere()
-        SLightsDataConnection.trackLightPosition:add(vec3(0, -0.99788, 0))
-        SLightsDataConnection.lightsEmbedInTrack = true
-        SLightsDataConnection.lightsOnTrack = true
-    else
-        SLightsDataConnection.lightsEmbedInTrack = false
-        local extras = ac.INIConfig.onlineExtras()
-        loadOnlineConfig(extras, lightType, server_mode)
-        if not SLightsDataConnection.lightsEmbedInTrack and not server_mode then
-            local oldTrackIniFilename = ac.getFolder(ac.FolderID.CurrentTrack) .. "/extension/" .. "track_lights.ini"
-            local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-            if io.exists(oldTrackIniFilename) then
-                ac.pauseFilesWatching(true)
-                local oldTrackIni = ac.INIConfig.load(oldTrackIniFilename)
-                oldTrackIni:set("POSITION", "X", oldTrackIni:get("Position", "x", 0))
-                oldTrackIni:set("POSITION", "Y", oldTrackIni:get("Position", "y", 0))
-                oldTrackIni:set("POSITION", "Z", oldTrackIni:get("Position", "z", 0))
-                oldTrackIni:set("POSITION", "ROT", oldTrackIni:get("Position", "rot", 0))
-                if not io.move(oldTrackIniFilename, trackIniFilename) then
-                    os.remove(oldTrackIniFilename)
-                end
-                ac.pauseFilesWatching(false)
-            end
-            if io.exists(trackIniFilename) then
-                local trackIni = ac.INIConfig.load(trackIniFilename)
-                if trackLightMesh then
-                    tl.rotateTrackLights(trackIni:get("POSITION", "ROT", 0))
-                    tl.setTrackLightPosition(vec3(trackIni:get("POSITION", "X", 0), trackIni:get("POSITION", "Y", 0),
-                        trackIni:get("POSITION", "Z", 0)))
-                else
-                    trackLightMesh = displayLights(lightType,
-                        vec3(trackIni:get("POSITION", "X", 0), trackIni:get("POSITION", "Y", 0),
-                            trackIni:get("POSITION", "Z", 0)), trackIni:get("POSITION", "ROT", 0), server_mode)
-                end
-                SLightsDataConnection.lightsOnTrack = true
-            end
+  SLightsDataConnection.lightsOnTrack = false
+  if trackLightMesh and force then
+    trackLightMesh:dispose()
+    ---@diagnostic disable-next-line: cast-local-type
+    trackLightMesh = nil
+  end
+  if checkTrackHasLightMesh() then
+    lightPrefix = "go0"
+    ac.findNodes('trackRoot:yes'):findMeshes("Objet006"):setTransparent(true)
+    ac.applyContentConfig(-1,
+      "[CONDITION_02]\nNAME = BLINK1\nINPUT = NONE\n[CONDITION_03]\nNAME = BLINK2\nINPUT = NONE\n[CONDITION_04]\nNAME = BLINK3\nINPUT = NONE")
+    SLightsDataConnection.trackLightPosition = ac.findNodes('trackRoot:yes'):findMeshes("go01"):boundingSphere()
+    --trackLightPosition = ac.findNodes('carRoot:0'):findMeshes("green"):boundingSphere()
+    SLightsDataConnection.trackLightPosition:add(vec3(0, -0.99788, 0))
+    SLightsDataConnection.lightsEmbedInTrack = true
+    SLightsDataConnection.lightsOnTrack = true
+  else
+    SLightsDataConnection.lightsEmbedInTrack = false
+    local extras = ac.INIConfig.onlineExtras()
+    loadOnlineConfig(extras, lightType, server_mode)
+    if not SLightsDataConnection.lightsEmbedInTrack and not server_mode then
+      local oldTrackIniFilename = ac.getFolder(ac.FolderID.CurrentTrack) .. "/extension/" .. "track_lights.ini"
+      local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+      if io.exists(oldTrackIniFilename) then
+        ac.pauseFilesWatching(true)
+        local oldTrackIni = ac.INIConfig.load(oldTrackIniFilename)
+        oldTrackIni:set("POSITION", "X", oldTrackIni:get("Position", "x", 0))
+        oldTrackIni:set("POSITION", "Y", oldTrackIni:get("Position", "y", 0))
+        oldTrackIni:set("POSITION", "Z", oldTrackIni:get("Position", "z", 0))
+        oldTrackIni:set("POSITION", "ROT", oldTrackIni:get("Position", "rot", 0))
+        if not io.move(oldTrackIniFilename, trackIniFilename) then
+          os.remove(oldTrackIniFilename)
         end
+        ac.pauseFilesWatching(false)
+      end
+      if io.exists(trackIniFilename) then
+        local trackIni = ac.INIConfig.load(trackIniFilename)
+        if trackLightMesh then
+          tl.rotateTrackLights(trackIni:get("POSITION", "ROT", 0))
+          tl.setTrackLightPosition(vec3(trackIni:get("POSITION", "X", 0), trackIni:get("POSITION", "Y", 0),
+            trackIni:get("POSITION", "Z", 0)))
+        else
+          trackLightMesh = displayLights(lightType,
+            vec3(trackIni:get("POSITION", "X", 0), trackIni:get("POSITION", "Y", 0),
+              trackIni:get("POSITION", "Z", 0)), trackIni:get("POSITION", "ROT", 0), server_mode)
+        end
+        SLightsDataConnection.lightsOnTrack = true
+      end
     end
+  end
 end
 
 -- ac.onOnlineWelcome(function (message, config)
@@ -366,68 +366,70 @@ end
 -- end)
 
 function tl.saveTrackLights(server_mode)
-    if server_mode then return end
-    local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-    local trackIni = ac.INIConfig.load(trackIniFilename)
-    ac.pauseFilesWatching(true)
-    trackIni:set("POSITION", "X", SLightsDataConnection.trackLightPosition.x)
-    trackIni:set("POSITION", "Y", SLightsDataConnection.trackLightPosition.y)
-    trackIni:set("POSITION", "Z", SLightsDataConnection.trackLightPosition.z)
-    trackIni:set("POSITION", "ROT", SLightsDataConnection.trackLightsRotation)
-    trackIni:save()
-    ac.pauseFilesWatching(false)
+  if server_mode then return end
+  local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+  local trackIni = ac.INIConfig.load(trackIniFilename)
+  ac.pauseFilesWatching(true)
+  trackIni:set("POSITION", "X", SLightsDataConnection.trackLightPosition.x)
+  trackIni:set("POSITION", "Y", SLightsDataConnection.trackLightPosition.y)
+  trackIni:set("POSITION", "Z", SLightsDataConnection.trackLightPosition.z)
+  trackIni:set("POSITION", "ROT", SLightsDataConnection.trackLightsRotation)
+  trackIni:save()
+  ac.pauseFilesWatching(false)
 end
 
 function tl.reloadTrackLights(modType, force, serverMode)
-    SLightsDataConnection.trackLightPosition = oldTrackLightPosition
-    SLightsDataConnection.trackLightsRotation = oldTrackLightsRotation
-    if trackLightMesh and force then
-        trackLightMesh:dispose()
-        ---@diagnostic disable-next-line: cast-local-type
-        trackLightMesh = nil
-    end
-    if trackLightMesh then
-        tl.rotateTrackLights(SLightsDataConnection.trackLightsRotation)
-        tl.setTrackLightPosition(SLightsDataConnection.trackLightPosition)
-    else
-        trackLightMesh = displayLights(modType, SLightsDataConnection.trackLightPosition, SLightsDataConnection.trackLightsRotation, serverMode)
-    end
+  SLightsDataConnection.trackLightPosition = oldTrackLightPosition
+  SLightsDataConnection.trackLightsRotation = oldTrackLightsRotation
+  if trackLightMesh and force then
+    trackLightMesh:dispose()
+    ---@diagnostic disable-next-line: cast-local-type
+    trackLightMesh = nil
+  end
+  if trackLightMesh then
+    tl.rotateTrackLights(SLightsDataConnection.trackLightsRotation)
+    tl.setTrackLightPosition(SLightsDataConnection.trackLightPosition)
+  else
+    trackLightMesh = displayLights(modType, SLightsDataConnection.trackLightPosition,
+      SLightsDataConnection.trackLightsRotation, serverMode)
+  end
 end
 
 function tl.displayLightMesh(lightType, server_mode)
-    if (trackLightMesh) then
-        trackLightMesh:dispose()
-    end
-    trackLightMesh = displayLights(lightType, SLightsDataConnection.trackLightPosition, SLightsDataConnection.trackLightsRotation, server_mode)
-    SLightsDataConnection.lightsOnTrack = true
+  if (trackLightMesh) then
+    trackLightMesh:dispose()
+  end
+  trackLightMesh = displayLights(lightType, SLightsDataConnection.trackLightPosition,
+    SLightsDataConnection.trackLightsRotation, server_mode)
+  SLightsDataConnection.lightsOnTrack = true
 end
 
 function tl.displayLightMeshAheadCar(lightType, server_mode)
-    if (trackLightMesh) then
-        trackLightMesh:dispose()
-    end
-    local polePosition = ac.getCar(0).bodyTransform:transformPoint(vec3(0, 0, 5))
-    trackLightMesh = displayLights(lightType, polePosition, 0, server_mode)
+  if (trackLightMesh) then
+    trackLightMesh:dispose()
+  end
+  local polePosition = ac.getCar(0).bodyTransform:transformPoint(vec3(0, 0, 5))
+  trackLightMesh = displayLights(lightType, polePosition, 0, server_mode)
 end
 
 function tl:enableEditionMode(dt, lightType, serverMode)
-    if ui.mouseDoubleClicked(ui.MouseButton.Left) then
-        local hit = vec3(0, 0, 0)
-        local ray = render.createMouseRay()
-        if physics.raycastTrack(ray.pos, ray.dir, ray.length, hit) ~= -1 then
-            SLightsDataConnection.trackLightPosition = hit:clone()
-            SLightsDataConnection.trackLightsRotation = 0
-            if lightType == tl.LightType.DBZ then
-                hit = hit:add(vec3(0, 0.165, 0))
-            end
-            if trackLightMesh then
-                trackLightMesh:setPosition(hit:clone())
-            else
-                trackLightMesh = displayLights(lightType, SLightsDataConnection.trackLightPosition, 0, serverMode)
-            end
-            SLightsDataConnection.lightsOnTrack = true
-        end
+  if ui.mouseDoubleClicked(ui.MouseButton.Left) then
+    local hit = vec3(0, 0, 0)
+    local ray = render.createMouseRay()
+    if physics.raycastTrack(ray.pos, ray.dir, ray.length, hit) ~= -1 then
+      SLightsDataConnection.trackLightPosition = hit:clone()
+      SLightsDataConnection.trackLightsRotation = 0
+      if lightType == tl.LightType.DBZ then
+        hit = hit:add(vec3(0, 0.165, 0))
+      end
+      if trackLightMesh then
+        trackLightMesh:setPosition(hit:clone())
+      else
+        trackLightMesh = displayLights(lightType, SLightsDataConnection.trackLightPosition, 0, serverMode)
+      end
+      SLightsDataConnection.lightsOnTrack = true
     end
+  end
 end
 
 -- function tl.updateLightMesh(dt)
@@ -440,92 +442,93 @@ end
 -- end
 
 function tl.removeLightMesh()
-    if (not SLightsDataConnection.lightsEmbedInTrack and trackLightMesh) then
-        trackLightMesh:dispose()
-        ---@diagnostic disable-next-line: cast-local-type
-        trackLightMesh = nil
-    end
+  if (not SLightsDataConnection.lightsEmbedInTrack and trackLightMesh) then
+    trackLightMesh:dispose()
+    ---@diagnostic disable-next-line: cast-local-type
+    trackLightMesh = nil
+  end
 end
 
 tl.TrackLightColors = {
-    green = rgb(0, 128, 32),
-    orange = rgb(251, 117, 0),
-    off = rgb(0, 0, 0)
+  green = rgb(0, 128, 32),
+  orange = rgb(251, 117, 0),
+  off = rgb(0, 0, 0)
 }
 
 ---@alias tl.LightType
 ---| `tl.LightType.DBZ` @…0.
 ---| `tl.LightType.VDM` @…1.
 tl.LightType = {
-    DBZ = 0,
-    VDM = 1
+  DBZ = 0,
+  VDM = 1
 }
 
 function tl.getLightCount()
-    return nbLights
+  return nbLights
 end
 
 function tl.getLightId(position)
-    if lightsDirection == LIGHTS_DIRECTION.top then
-        return nbLights - (position - 1)
-    else
-        return position
-    end
+  if lightsDirection == LIGHTS_DIRECTION.top then
+    return nbLights - (position - 1)
+  else
+    return position
+  end
 end
 
 function tl.trackHasLightMesh()
-    return SLightsDataConnection.lightsOnTrack and SLightsDataConnection.trackLightPosition or SLightsDataConnection.lightsEmbedInTrack
+  return SLightsDataConnection.lightsOnTrack and SLightsDataConnection.trackLightPosition or
+      SLightsDataConnection.lightsEmbedInTrack
 end
 
 function tl.trackHasEmbedLightMesh()
-    return SLightsDataConnection.lightsEmbedInTrack
+  return SLightsDataConnection.lightsEmbedInTrack
 end
 
 ---Set the light color
 ---@param lightId integer
 ---@param color rgb
 function tl.setTrackLightColor(lightId, color)
-    local mesh = ac.findNodes('trackRoot:yes'):findMeshes(lightPrefix .. lightId)
-    mesh:setMaterialProperty('ksEmissive', color)
-    -- mesh:setMaterialProperty('DIFFUSE_CONCENTRATION', 1.620)
-    -- mesh:setMaterialProperty('RANGE', 50)
-    -- mesh:setMaterialProperty('CLUSTER_THRESHOLD', 30)
-    -- mesh:setMaterialProperty('FADE_AT', 0)
+  local mesh = ac.findNodes('trackRoot:yes'):findMeshes(lightPrefix .. lightId)
+  mesh:setMaterialProperty('ksEmissive', color)
+  -- mesh:setMaterialProperty('DIFFUSE_CONCENTRATION', 1.620)
+  -- mesh:setMaterialProperty('RANGE', 50)
+  -- mesh:setMaterialProperty('CLUSTER_THRESHOLD', 30)
+  -- mesh:setMaterialProperty('FADE_AT', 0)
 end
 
 function tl.getTrackLightPosition()
-    if not SLightsDataConnection.trackLightPosition then return vec3() end
-    return SLightsDataConnection.trackLightPosition
+  if not SLightsDataConnection.trackLightPosition then return vec3() end
+  return SLightsDataConnection.trackLightPosition
 end
 
 function tl.setTrackLightPosition(pos)
-    oldTrackLightPosition = pos:clone()
-    SLightsDataConnection.trackLightPosition = pos
-    if trackLightMesh then
-        trackLightMesh:setPosition(pos:clone():add(trackLightPositionOffset))
-    end
+  oldTrackLightPosition = pos:clone()
+  SLightsDataConnection.trackLightPosition = pos
+  if trackLightMesh then
+    trackLightMesh:setPosition(pos:clone():add(trackLightPositionOffset))
+  end
 end
 
 function tl.getTrackLightsRotation()
-    if not SLightsDataConnection.trackLightsRotation then return 0 end
-    return SLightsDataConnection.trackLightsRotation
+  if not SLightsDataConnection.trackLightsRotation then return 0 end
+  return SLightsDataConnection.trackLightsRotation
 end
 
 function tl.setTrackLightsRotation(angle)
-    oldTrackLightsRotation = SLightsDataConnection.trackLightsRotation
-    SLightsDataConnection.trackLightsRotation = angle
+  oldTrackLightsRotation = SLightsDataConnection.trackLightsRotation
+  SLightsDataConnection.trackLightsRotation = angle
 end
 
 function tl.rotateTrackLights(angle)
-    oldTrackLightsRotation = SLightsDataConnection.trackLightsRotation
-    SLightsDataConnection.trackLightsRotation = angle
-    trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(angle))
+  oldTrackLightsRotation = SLightsDataConnection.trackLightsRotation
+  SLightsDataConnection.trackLightsRotation = angle
+  trackLightMesh:setRotation(vec3(0, 1, 0), math.rad(angle))
 end
 
 function tl.turnOffLights()
-    for i = 1, nbLights + 1, 1 do
-        tl.setTrackLightColor(i, tl.TrackLightColors.off)
-    end
+  for i = 1, nbLights + 1, 1 do
+    tl.setTrackLightColor(i, tl.TrackLightColors.off)
+  end
 end
 
 --- START LIGHT MANAGER
@@ -1212,7 +1215,7 @@ end, ac.SharedNamespace.Shared)
 
 if SLightsAppConnection.isAdmin then
   addAdmin(ac.getCar(0).sessionID)
-    updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, true)
+  updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, true)
 end
 
 local startLightsEvent = ac.OnlineEvent({
@@ -1595,20 +1598,8 @@ function script.windowSettings(dt)
   end
   ui.pushFont(ui.Font.Title)
   ui.tabBar("settings", function()
-    local isAppAndServerScriptRunning = false
-    if SLightsAppConnection.appConnected and SLightsAppConnection.serverScriptConnected then
-      if not SERVER_MODE then
-        ui.text("Start Lights ServerScript detected, please use it instead")
-        ui.text("Look for this icon : ")
-        ui.sameLine()
-        ui.icon(ui.Icons.TrafficLight, vec2(32, 32))
-        ui.newLine()
-        isAppAndServerScriptRunning = true
-      end
-    end
     ui.tabItem("General", function()
       local scaleChanged
-      if isAppAndServerScriptRunning then goto howtotrigger end
       ui.text("Orientation :")
       if ui.radioButton("Vertical", AppSettings.classicLightsOrientation == "vertical") then
         AppSettings.classicLightsOrientation = "vertical"
@@ -1666,7 +1657,6 @@ function script.windowSettings(dt)
           slMgr.reloadTrackLights(true)
         end
       end
-      ::howtotrigger::
       ui.separator()
       ui.setNextTextBold()
       ui.text("How to trigger the start lights")
@@ -1736,112 +1726,111 @@ function script.windowSettings(dt)
       end
       ui.newLine()
     end)
-    if not isAppAndServerScriptRunning then
-      ui.tabItem("Track light editor", function()
-        if slMgr.trackHasEmbedLightMesh() then
-          ui.text("This track has its own start lights already. It's not editable.")
-          ui.newLine()
-        elseif slMgr.trackHasLightMesh() then
-          ui.text(string.format("A track start light is already on track at position\n%s.", slMgr.getTrackLightPosition()))
-          ui.separator()
-          ui.newLine(15)
-        else
-          ui.newLine(5)
-          if not SERVER_MODE then
-            ui.text(
-              "If you have a track_lights.ini file for the track paste it in the track layout folder and restart the app.")
-            ui.separator()
-            ui.newLine()
-            if ui.button("Restart app...", BUTTON_SIZE) then
-              ac.restartApp()
-            end
-          end
-          ui.sameLine()
-        end
-        --ui.setCursorX(ui.getCursorX() +
-        -- ((ui.windowWidth() - ui.getCursorX() - 300 + (editionMode and 0 or -BUTTON_SIZE.x - 40)) / 2))
+    ui.tabItem("Track light editor", function()
+      if slMgr.trackHasEmbedLightMesh() then
+        ui.text("This track has its own start lights already. It's not editable.")
+        ui.newLine()
+      elseif slMgr.trackHasLightMesh() then
+        ui.text(string.format("A track start light is already on track at position\n%s.", slMgr.getTrackLightPosition()))
+        ui.separator()
+        ui.newLine(15)
+      else
+        ui.newLine(5)
         if not SERVER_MODE then
-          if not slMgr.trackHasEmbedLightMesh() then
-            if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
-              local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
-              if io.exists(trackIniFilename) then
-                os.showInExplorer(trackIniFilename)
-              else
-                os.openInExplorer(ac.getFolder(ac.FolderID.CurrentTrackLayoutUI))
-              end
-            end
-            ui.sameLine()
-          end
-        end
-        if slMgr.trackHasLightMesh() and not slMgr.trackHasEmbedLightMesh() then
-          if ui.button("Remove", BUTTON_SIZE) then
-            editionMode = false
-            slMgr.trackLightEdition(editionMode)
-            slMgr.clearSavedLights()
-          end
-        end
-        if editionMode then
-          ui.setMouseCursor(ui.MouseCursor.ResizeAll)
-          ui.separator()
-          ui.newLine(5)
           ui.text(
-            "Just double click on the map where you want to place the start lights.\nClick the save button when you are done.")
-          ui.newLine(15)
-          local rot = refnumber(slMgr.getTrackLightsRotation())
-          ui.setNextItemWidth(350)
-          ui.setCursorX((ui.windowWidth() - 350) / 2)
-          if ui.slider("'##rotationSliderID'", rot, 0, 360, 'Rotation: %.1f') then
-            slMgr.rotateTrackLights(rot.value)
+            "If you have a track_lights.ini file for the track paste it in the track layout folder and restart the app.")
+          ui.separator()
+          ui.newLine()
+          if ui.button("Restart app...", BUTTON_SIZE) then
+            ac.restartApp()
           end
-          ui.newLine(5)
-          ui.setCursorX((ui.windowWidth() - (2 * BUTTON_SIZE.x) - 10) / 2)
-          if ui.button("Save", BUTTON_SIZE) then
-            editionMode = false
-            slMgr.trackLightEdition(editionMode)
-            slMgr.saveTrackLights()
+        end
+        ui.sameLine()
+      end
+      --ui.setCursorX(ui.getCursorX() +
+      -- ((ui.windowWidth() - ui.getCursorX() - 300 + (editionMode and 0 or -BUTTON_SIZE.x - 40)) / 2))
+      if not SERVER_MODE then
+        if not slMgr.trackHasEmbedLightMesh() then
+          if ui.button("Open track folder...", vec2(300, BUTTON_SIZE.y)) then
+            local trackIniFilename = ac.getFolder(ac.FolderID.CurrentTrackLayoutUI) .. "/" .. "track_lights.ini"
+            if io.exists(trackIniFilename) then
+              os.showInExplorer(trackIniFilename)
+            else
+              os.openInExplorer(ac.getFolder(ac.FolderID.CurrentTrackLayoutUI))
+            end
           end
           ui.sameLine()
-          if ui.button("Cancel", BUTTON_SIZE) then
-            editionMode = false
+        end
+      end
+      if slMgr.trackHasLightMesh() and not slMgr.trackHasEmbedLightMesh() then
+        if ui.button("Remove", BUTTON_SIZE) then
+          editionMode = false
+          slMgr.trackLightEdition(editionMode)
+          slMgr.clearSavedLights()
+        end
+      end
+      if editionMode then
+        ui.setMouseCursor(ui.MouseCursor.ResizeAll)
+        ui.separator()
+        ui.newLine(5)
+        ui.text(
+          "Just double click on the map where you want to place the start lights.\nClick the save button when you are done.")
+        ui.newLine(15)
+        local rot = refnumber(slMgr.getTrackLightsRotation())
+        ui.setNextItemWidth(350)
+        ui.setCursorX((ui.windowWidth() - 350) / 2)
+        if ui.slider("'##rotationSliderID'", rot, 0, 360, 'Rotation: %.1f') then
+          slMgr.rotateTrackLights(rot.value)
+        end
+        ui.newLine(5)
+        ui.setCursorX((ui.windowWidth() - (2 * BUTTON_SIZE.x) - 10) / 2)
+        if ui.button("Save", BUTTON_SIZE) then
+          editionMode = false
+          slMgr.trackLightEdition(editionMode)
+          slMgr.saveTrackLights()
+        end
+        ui.sameLine()
+        if ui.button("Cancel", BUTTON_SIZE) then
+          editionMode = false
+          slMgr.trackLightEdition(editionMode)
+          slMgr.reloadTrackLights(false)
+        end
+      else
+        ui.setMouseCursor(ui.MouseCursor.Arrow)
+        if not slMgr.trackHasEmbedLightMesh() then
+          ui.sameLine()
+          --  ui.setCursorX(ui.getCursorX() + (ui.windowWidth() - ui.getCursorX() - BUTTON_SIZE.x) / 2)
+          if ui.button(slMgr.trackHasLightMesh() and "Edit Light..." or "Create Light...", BUTTON_SIZE) then
+            editionMode = true
             slMgr.trackLightEdition(editionMode)
-            slMgr.reloadTrackLights(false)
-          end
-        else
-          ui.setMouseCursor(ui.MouseCursor.Arrow)
-          if not slMgr.trackHasEmbedLightMesh() then
-            ui.sameLine()
-            --  ui.setCursorX(ui.getCursorX() + (ui.windowWidth() - ui.getCursorX() - BUTTON_SIZE.x) / 2)
-            if ui.button(slMgr.trackHasLightMesh() and "Edit Light..." or "Create Light...", BUTTON_SIZE) then
-              editionMode = true
-              slMgr.trackLightEdition(editionMode)
-            end
-          end
-          if slMgr.trackHasLightMesh() then
-            ui.sameLine()
-            if ui.button("Copy data", BUTTON_SIZE) then
-              ac.setClipboardText(slMgr.getTrackLightConfig())
-              ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
-            end
           end
         end
+        if slMgr.trackHasLightMesh() then
+          ui.sameLine()
+          if ui.button("Copy data", BUTTON_SIZE) then
+            ac.setClipboardText(slMgr.getTrackLightConfig())
+            ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
+          end
+        end
+      end
+      ui.newLine()
+    end)
+
+    if SLightsAppConnection.competitionMode and not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
+      ui.tabItem("Competition Mode", function()
+        ui.pushFont(ui.Font.Huge)
+        ui.setNextTextBold()
+        ui.textColored("Competition Mode Activated!", rgbm.colors.red)
+        ui.popFont()
+        ui.text("Only admins can operate the Track Lights")
+      end)
+    else
+      ui.tabItem("Competition Mode", function()
+        script.windowContentCompetitionMode(dt)
         ui.newLine()
       end)
-
-      if SLightsAppConnection.competitionMode and not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
-        ui.tabItem("Competition Mode", function()
-          ui.pushFont(ui.Font.Huge)
-          ui.setNextTextBold()
-          ui.textColored("Competition Mode Activated!", rgbm.colors.red)
-          ui.popFont()
-          ui.text("Only admins can operate the Track Lights")
-        end)
-      else
-        ui.tabItem("Competition Mode", function()
-          script.windowContentCompetitionMode(dt)
-          ui.newLine()
-        end)
-      end
     end
+
     if not SERVER_MODE then
       ui.tabItem("Updates", function()
         update.drawUI()
