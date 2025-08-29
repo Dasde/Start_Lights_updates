@@ -547,9 +547,9 @@ local slMgr = {}
 local hud_scale = 1.0
 local orientation = 'vertical' -- 'vertical' or 'horizontal'
 local sendChatMessage = false
-local TLKey = ac.getCarID(0) .. "_trafficLights"
-local TLSharedData = {
-  ac.StructItem.key(TLKey .. "_" .. 0),
+local TLConnectorKey = ac.getCarID(0) .. "_trafficLights"
+local TLConnectorSharedData = {
+  ac.StructItem.key(TLConnectorKey .. "_" .. 0),
   Connected = ac.StructItem.boolean(),
   Started = ac.StructItem.boolean(),
   Light1On = ac.StructItem.boolean(),
@@ -558,7 +558,7 @@ local TLSharedData = {
   Light4On = ac.StructItem.boolean(),
   YellowBlinking = ac.StructItem.boolean(),
 }
-local TLightsConnection = ac.connect(TLSharedData, false, ac.SharedNamespace.Shared)
+local TLightsConnection = ac.connect(TLConnectorSharedData, false, ac.SharedNamespace.Shared)
 TLightsConnection.Connected = true
 
 function slMgr.setOrientation(new_orientation)
