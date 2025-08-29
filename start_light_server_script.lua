@@ -243,6 +243,8 @@ function tl.clearSavedLights(server_mode)
 end
 
 local function checkTrackHasLightMesh()
+    if SLightsDataConnection.lightsEmbedInTrack then return true end
+    if SLightsDataConnection.lightsOnTrack then return false end
   local mesh = ac.findNodes('trackRoot:yes'):findMeshes("go01")
   return (mesh:name() ~= "")
 end
