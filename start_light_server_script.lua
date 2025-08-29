@@ -1243,6 +1243,29 @@ local startLightsEvent = ac.OnlineEvent({
   friendlyCompetitionMode = ac.StructItem.boolean(),
 }, function(sender, data)
   if cannotRun() then return end
+  if not SERVER_MODE and not SLightsAppConnection.competitionMode and sender.index > 0 then
+    local senderName = ac.getDriverName(sender.index)
+    if useWhiteList then
+      local isInWhiteList = false
+      for _, name in ipairs(whiteList) do
+        ---@diagnostic disable-next-line: need-check-nil
+        if senderName:lower() == name:lower() then
+          isInWhiteList = true
+          break
+        end
+      end
+      if not isInWhiteList then
+        return
+      end
+    else
+      for _, name in ipairs(blackList) do
+        ---@diagnostic disable-next-line: need-check-nil
+        if senderName:lower() == name:lower() then
+          return
+        end
+      end
+    end
+  end
   if data.endFalseStart then
     falseStart(false)
     return
@@ -1275,29 +1298,6 @@ local startLightsEvent = ac.OnlineEvent({
         distance = ourCarPosition:distance(refPoint)
         if (distance > range) then
           return
-        end
-      end
-      if not SERVER_MODE and not SLightsAppConnection.competitionMode and not SLightsAppConnection.friendlyCompetitionMode then
-        local senderName = ac.getDriverName(sender.index)
-        if useWhiteList then
-          local isInWhiteList = false
-          for _, name in ipairs(whiteList) do
-            ---@diagnostic disable-next-line: need-check-nil
-            if senderName:lower() == name:lower() then
-              isInWhiteList = true
-              break
-            end
-          end
-          if not isInWhiteList then
-            return
-          end
-        else
-          for _, name in ipairs(blackList) do
-            ---@diagnostic disable-next-line: need-check-nil
-            if senderName:lower() == name:lower() then
-              return
-            end
-          end
         end
       end
     end
