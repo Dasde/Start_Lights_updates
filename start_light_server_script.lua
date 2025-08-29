@@ -1179,7 +1179,6 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
   if (SLightsAppConnection.competitionMode == data.competitionMode and sender.index == 0) then
     return
   end
-  SLightsAppConnection.competitionMode = data.competitionMode
   if data.competitionMode ~= SLightsAppConnection.competitionMode then
     if data.competitionMode  then
       ac.setMessage("Start Lights", "Competition Mode activated")
@@ -1188,6 +1187,7 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
       ac.setMessage("Start Lights", "Competition Mode deactivated")
     end
   end
+  SLightsAppConnection.competitionMode = data.competitionMode
   if (not slMgr.trackHasLightMesh() or data.forceUpdate) and data.lightPosition and data.lightPosition ~= vec3() then
     slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
   end
@@ -1821,8 +1821,9 @@ function script.windowSettings(dt)
         if slMgr.trackHasLightMesh() then
           ui.sameLine()
           if ui.button("Copy data", BUTTON_SIZE) then
-            ac.setClipboardText(slMgr.getTrackLightConfig())
-            ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
+            if ac.setClipboardText(slMgr.getTrackLightConfig()) then
+              ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
+            end
           end
         end
       end
@@ -1890,7 +1891,9 @@ function script.windowSettings(dt)
       local addScriptSnippet = "[SCRIPT_0]\nSCRIPT = 'https://github.com/Dasde/Start_Lights_updates/raw/refs/heads/main/start_light_server_script.lua'"
       ui.text(addScriptSnippet)
       if ui.button("Copy to clipboard") then
-        ac.setClipboardText(addScriptSnippet)
+        if ac.setClipboardText(addScriptSnippet) then
+          ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
+        end
       end
       ui.newLine()
       ui.setNextTextBold()
@@ -1898,7 +1901,9 @@ function script.windowSettings(dt)
       local addOperatorSnippet = "[TRACK_START_LIGHT_OPERATOR_0]\nSTEAM_ID=Steam id of the operator"
       ui.text(addOperatorSnippet)
       if ui.button("Copy to clipboard") then
-        ac.setClipboardText(addOperatorSnippet)
+        if ac.setClipboardText(addOperatorSnippet) then
+          ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
+        end
       end
       ui.newLine()
       ui.setNextTextBold()
