@@ -708,11 +708,11 @@ function slMgr.SetIsYellowBlinking(isBlinking)
     if not tl.trackHasLightMesh() and use3DLights then
       tl.displayLightMeshAheadCar(modType, serverMode)
     end
-    tl.setTrackLightColor(1, tl.TrackLightColors.orange)
-    tl.setTrackLightColor(2, tl.TrackLightColors.orange)
-    tl.setTrackLightColor(3, tl.TrackLightColors.orange)
+    tl.setTrackLightColor(tl.getLightId(1), tl.TrackLightColors.orange)
+    tl.setTrackLightColor(tl.getLightId(2), tl.TrackLightColors.orange)
+    tl.setTrackLightColor(tl.getLightId(3), tl.TrackLightColors.orange)
     if (tl.getLightCount() > 3) then
-      tl.setTrackLightColor(4, tl.TrackLightColors.orange)
+      tl.setTrackLightColor(tl.getLightId(4), tl.TrackLightColors.orange)
     end
     start_lights_state = 0
     start_lights_timer = 0
@@ -722,11 +722,11 @@ function slMgr.SetIsYellowBlinking(isBlinking)
   else
     start_lights_running = false
     TLightsConnection.YellowBlinking = false
-    tl.setTrackLightColor(1, tl.TrackLightColors.off)
-    tl.setTrackLightColor(2, tl.TrackLightColors.off)
-    tl.setTrackLightColor(3, tl.TrackLightColors.off)
+    tl.setTrackLightColor(tl.getLightId(1), tl.TrackLightColors.off)
+    tl.setTrackLightColor(tl.getLightId(2), tl.TrackLightColors.off)
+    tl.setTrackLightColor(tl.getLightId(3), tl.TrackLightColors.off)
     if (tl.getLightCount() > 3) then
-      tl.setTrackLightColor(4, tl.TrackLightColors.off)
+      tl.setTrackLightColor(tl.getLightId(4), tl.TrackLightColors.off)
     end
     if not tl.trackHasLightMesh() then
       tl.removeLightMesh()
@@ -816,9 +816,12 @@ function slMgr.updateStartLights(dt)
       end
 
       lhud.configureLights(newAlpha, 1, true)
-      tl.setTrackLightColor(1, newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
-      tl.setTrackLightColor(2, newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
-      tl.setTrackLightColor(3, newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
+      tl.setTrackLightColor(tl.getLightId(1), newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
+      tl.setTrackLightColor(tl.getLightId(2), newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
+      tl.setTrackLightColor(tl.getLightId(3), newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
+      if (tl.getLightCount() > 3) then
+          tl.setTrackLightColor(tl.getLightId(4), newAlpha == 1 and tl.TrackLightColors.orange or tl.TrackLightColors.off)
+      end
     end
   else
     if start_lights_state < 4 then
@@ -889,9 +892,9 @@ function slMgr.updateStartLights(dt)
     if start_lights_state == 4 then
       TLightsConnection.Light4On = true
       if (nbLights < 4) then
-        tl.setTrackLightColor(1, tl.TrackLightColors.green)
-        tl.setTrackLightColor(2, tl.TrackLightColors.green)
-        tl.setTrackLightColor(3, tl.TrackLightColors.green)
+        tl.setTrackLightColor(tl.getLightId(1), tl.TrackLightColors.green)
+        tl.setTrackLightColor(tl.getLightId(2), tl.TrackLightColors.green)
+        tl.setTrackLightColor(tl.getLightId(3), tl.TrackLightColors.green)
       else
         tl.setTrackLightColor(tl.getLightId(4), tl.TrackLightColors.green)
       end
@@ -1250,31 +1253,31 @@ local startLightsEvent = ac.OnlineEvent({
         slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
       end
     end
+    if not slMgr.trackHasLightMesh() and data.lightPosition and data.lightPosition ~= vec3() then
+      slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
+    end
+
     if sender.index > 0 then
       local senderCarPostion = sender.position;
+      local ourCarPosition = ac.getCar(0).position;
       local range = data.falseStart and FALSE_START_TRIGGER_RANGE or AppSettings.triggerRange
       local distance
-      if data.friendlyCompetitionMode and not SLightsAppConnection.friendlyCompetitionMode then
-        distance = senderCarPostion:distance(slMgr.getTrackLightPosition())
+      local refPoint
+      if not (SLightsAppConnection.friendlyCompetitionMode or SLightsAppConnection.competitionMode) then
+        refPoint = slMgr.trackHasLightMesh() and slMgr.getTrackLightPosition() or ourCarPosition
+        distance = senderCarPostion:distance(refPoint)
         if distance > range then
           return
         end
       end
       if AppSettings.useTriggerRange then
-        local ourCarPosition = ac.getCar(0).position;
-        if slMgr.trackHasLightMesh() then
-          distance = ourCarPosition:distance(slMgr.getTrackLightPosition())
-        elseif data.lightPosition and data.lightPosition ~= vec3() then
-          distance = ourCarPosition:distance(data.lightPosition)
-          slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
-        else
-          distance = ourCarPosition:distance(senderCarPostion)
-        end
+        refPoint = slMgr.trackHasLightMesh() and slMgr.getTrackLightPosition() or senderCarPostion
+        distance = ourCarPosition:distance(refPoint)
         if (distance > range) then
           return
         end
       end
-      if not SLightsAppConnection.competitionMode and not SLightsAppConnection.friendlyCompetitionMode then
+      if not SERVER_MODE and not SLightsAppConnection.competitionMode and not SLightsAppConnection.friendlyCompetitionMode then
         local senderName = ac.getDriverName(sender.index)
         if useWhiteList then
           local isInWhiteList = false
@@ -1900,7 +1903,7 @@ function script.windowSettings(dt)
       ui.bulletText("Operators can be added like this :")
       local addOperatorSnippet = "[TRACK_START_LIGHT_OPERATOR_0]\nSTEAM_ID=Steam id of the operator"
       ui.text(addOperatorSnippet)
-      if ui.button("Copy to clipboard") then
+      if ui.button("Copy to clipboard###2") then
         if ac.setClipboardText(addOperatorSnippet) then
           ui.toast(ui.Icons.Clipboard, "Data copied to clipboard")
         end
