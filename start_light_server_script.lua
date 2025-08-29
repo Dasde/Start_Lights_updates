@@ -996,6 +996,7 @@ local isPaused = false
 local lastReplayPos = 0
 
 local function addGrantedUsers(sessionId)
+  if not sessionId or sessionId == 0 then return end
   if not table.contains(grantedUsers, sessionId) then
     table.insert(grantedUsers, sessionId)
   end
