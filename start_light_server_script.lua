@@ -1512,7 +1512,7 @@ function script.windowContentCompetitionMode(dt)
         unSavedGrantedUsers = table.clone(grantedUsers)
       end
       for i, car in ac.iterateCars() do
-        local checked = car.index == 0 or table.contains(unSavedGrantedUsers, car.sessionID)
+        local checked = car.index == 0 or table.contains(unSavedGrantedUsers, car.sessionID) or table.contains(admins, car.sessionID)
         ui.setCursorX(windowCursor)
         if table.contains(admins, car.sessionID) then
           ui.pushDisabled()
