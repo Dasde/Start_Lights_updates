@@ -1180,6 +1180,14 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
     return
   end
   SLightsAppConnection.competitionMode = data.competitionMode
+  if data.competitionMode ~= SLightsAppConnection.competitionMode then
+    if data.competitionMode  then
+      ac.setMessage("Start Lights", "Competition Mode activated")
+      SLightsAppConnection.friendlyCompetitionMode = false
+    else
+      ac.setMessage("Start Lights", "Competition Mode deactivated")
+    end
+  end
   if (not slMgr.trackHasLightMesh() or data.forceUpdate) and data.lightPosition and data.lightPosition ~= vec3() then
     slMgr.setAndSaveTrackLights(data.lightPosition, data.lightRotation)
   end
@@ -1191,13 +1199,7 @@ local toggleCompetitionModeEvent = ac.OnlineEvent({
   for i = 0, 15, 1 do
     addAdmin(data.admins[i])
   end
-  if data.competitionMode then
-    ac.setMessage("Start Lights", "Competition Mode activated")
-    SLightsAppConnection.friendlyCompetitionMode = false
-  else
-    ac.setMessage("Start Lights", "Competition Mode deactivated")
-  end
-end, ac.SharedNamespace.Shared, false, { processPostponed = true })
+end, ac.SharedNamespace.Shared)
 
 local updateGrantedUsers = ac.OnlineEvent({
   key = ac.StructItem.key("Start_Lights_update_granted_users_events"),
