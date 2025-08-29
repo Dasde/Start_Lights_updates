@@ -1426,10 +1426,12 @@ end
 
 ac.onClientConnected(function(connectedCarIndex, connectedSessionID)
   if cannotRun() then return end
-  if (SLightsAppConnection.isAdmin or sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
-    addAdmin(ac.getCar(0).sessionID)
-    updateGrantedUsers({ admins = { ac.getCar(0).sessionID } }, false, connectedSessionID)
-  end
+  setTimeout(function ()
+    if (SLightsAppConnection.isAdmin or sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
+      addAdmin(ac.getCar(0).sessionID)
+      toggleCompetitionModeEvent({ competitionMode = SLightsAppConnection.competitionMode, grantedUsers = grantedUsers, admins = admins, lightPosition = slMgr.getTrackLightPosition(), lightRotation = slMgr.getTrackLightsRotation(), forceUpdate = true }, false, connectedSessionID)
+    end
+  end, 5)
 end)
 
 ac.onClientDisconnected(function(connectedCarIndex, connectedSessionID)
