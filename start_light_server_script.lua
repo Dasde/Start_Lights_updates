@@ -941,6 +941,7 @@ local SLSharedData = {
 local SLightsAppConnection = ac.connect(SLSharedData, false, ac.SharedNamespace.Shared)
 if SERVER_MODE then
   SLightsAppConnection.serverScriptConnected = true
+
 else
   SLightsAppConnection.appConnected = true
 end
@@ -991,11 +992,10 @@ if ac.isLuaAppRunning("Traffic_Lights") then
   ac.uninstallApp("Traffic_Lights")
 end
 
-local isAppRunning = SLightsAppConnection.appConnected or ac.isLuaAppRunning("Start_Lights")
 ---can the script run
 ---@return boolean
 local function canRun()
-  if SERVER_MODE and isAppRunning then return false end
+  if SERVER_MODE and (SLightsAppConnection.appConnected or ac.isLuaAppRunning("Start_Lights")) then return false end
   return true
 end
 if SERVER_MODE then
@@ -1013,7 +1013,12 @@ if SERVER_MODE then
   ac.onOnlineWelcome(function(message, config)
     loadOnlineConfig(config)
   end)
-  if isAppRunning then
+  local sim = ac.getSim()
+  local waitStartTime = sim.systemTime;
+  while waitStartTime + 5000 > sim.systemTime do
+    -- wait to let the app start if it is activated
+  end
+  if SLightsAppConnection.appConnected or ac.isLuaAppRunning("Start_Lights") then
     ac.log("ciao")
     return
   end
