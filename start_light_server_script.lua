@@ -2010,7 +2010,7 @@ function script.drawUI(dt)
     ui.transparentWindow("main", windowPosition, windowSize, false, true, function()
       if settingsOpened then
         ui.drawRectFilled(vec2(0, 0), settingsSize, rgbm(0.4, 0.4, 0.4, 0.5), 10, ui.CornerFlags.All)
-        if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
+        if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32), SLightsAppConnection.competitionMode and rgbm.colors.red or (SLightsAppConnection.friendlyCompetitionMode and rgbm.colors.aqua or rgbm.colors.white)) then
           settingsOpened = not settingsOpened
         end
         if ui.itemHovered(ui.HoveredFlags.None) then
