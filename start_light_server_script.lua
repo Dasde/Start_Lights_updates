@@ -2020,7 +2020,7 @@ function script.drawUI(dt)
         end
         script.windowSettings(dt)
       else
-        if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32)) then
+        if ui.iconButton(ui.Icons.TrafficLight, vec2(32, 32), SLightsAppConnection.competitionMode and rgbm.colors.red or (SLightsAppConnection.friendlyCompetitionMode and rgbm.colors.aqua or rgbm.colors.white)) then
           settingsOpened = not settingsOpened
         end
         if ui.itemHovered(ui.HoveredFlags.None) then
