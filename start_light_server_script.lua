@@ -1003,6 +1003,7 @@ local function addGrantedUsers(sessionId)
 end
 
 local function addAdmin(sessionId)
+  if not sessionId or sessionId == 0 then return end
   if not table.contains(admins, sessionId) then
     table.insert(admins, sessionId)
   end
