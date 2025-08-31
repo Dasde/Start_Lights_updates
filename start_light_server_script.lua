@@ -1749,10 +1749,12 @@ function script.windowSettings(dt)
       ui.separator()
       ui.newLine(20)
       if not SERVER_MODE then
-        if ui.button("Restart app...", BUTTON_SIZE) then
-          ac.restartApp()
+        if ac.getPatchVersionCode() >= 3459 then
+          if ui.button("Restart app...", BUTTON_SIZE) then
+            ac.restartApp()
+          end
+          ui.newLine()
         end
-        ui.newLine()
       end
       ui.newLine()
     end)
@@ -1771,8 +1773,10 @@ function script.windowSettings(dt)
             "If you have a track_lights.ini file for the track paste it in the track layout folder and restart the app.")
           ui.separator()
           ui.newLine()
-          if ui.button("Restart app...", BUTTON_SIZE) then
-            ac.restartApp()
+          if ac.getPatchVersionCode() >= 3459 then
+            if ui.button("Restart app...", BUTTON_SIZE) then
+              ac.restartApp()
+            end
           end
         end
         ui.sameLine()
@@ -2113,8 +2117,8 @@ function script.update(dt)
   if isPaused then
     return
   end
-  if sim.isOnlineRace and not sim.isAdmin then
-    if ac.checkAdminPrivileges and checkAdminPrivilegesTimer > 10 then
+  if sim.isOnlineRace and not (sim.isAdmin or SLightsAppConnection.isAdmin) and ac.getPatchVersionCode() >= 3465 then
+    if ac.checkAdminPrivileges and checkAdminPrivilegesTimer > 20 then
       checkAdminPrivilegesTimer = 0
       ac.checkAdminPrivileges()
     end
