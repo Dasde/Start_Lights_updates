@@ -1969,7 +1969,7 @@ function script.windowSettings(dt)
       ui.setNextTextBold()
       ui.bulletText("Set custom semaphore position like this :")
       ui.text('Go to the track, position the semaphore then click "Copy data" in the "Track light editor" tab.')
-      ui.text("Then paste the text in your configuration file and ajust the number after the _ (increment)")
+      ui.text("Then paste the text in your configuration file.")
       ui.text("It should look like this :")
       ui.text(
         "[TRACK_START_LIGHT_...]\nTRACK=cfd_val_de_vienne_2022\nX=495.0426940918\nY=1.5083720684052\nZ=69.54564666748\nROT=344.89999389648\n")
