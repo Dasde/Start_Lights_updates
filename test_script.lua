@@ -333,6 +333,7 @@ function tl.init(lightType, force, server_mode)
         ---@diagnostic disable-next-line: cast-local-type
         trackLightMesh = nil
     end
+    if (server_mode and tl.trackHasLightMesh()) then return end
     if checkTrackHasLightMesh() then
         lightPrefix = "go0"
         ac.findNodes('trackRoot:yes'):findMeshes("Objet006"):setTransparent(true)
@@ -344,6 +345,9 @@ function tl.init(lightType, force, server_mode)
         SLightsDataConnection.lightsEmbedInTrack = true
         SLightsDataConnection.lightsOnTrack = true
     else
+        if (not server_mode) then
+            SLightsDataConnection.lightsOnTrackServer = false
+        end
         local extras = ac.INIConfig.onlineExtras()
         tl.loadOnlineConfig(extras, lightType, server_mode)
         if not SLightsDataConnection.lightsOnTrackServer and not server_mode then
