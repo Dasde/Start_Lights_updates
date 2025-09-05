@@ -1072,6 +1072,7 @@ if SERVER_MODE then
   initTimeoutId = setTimeout(function ()
     SERVER_MODE = __dirname == nil
     if SLightsAppConnection.appConnected then
+      ac.log("server mode deactivated" )
       return
     end
     ac.log("server mode " .. SERVER_MODE)
