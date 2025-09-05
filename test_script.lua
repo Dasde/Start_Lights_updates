@@ -1079,7 +1079,7 @@ if SERVER_MODE then
     slMgr.init(AppSettings.classicLightsScale, AppSettings.useSound, AppSettings.classicLightsOrientation,
     AppSettings.lightsModType, AppSettings.sendChatMessage, AppSettings.use3DLights, SERVER_MODE)
   end,5)
-  --return
+  return
 else
   slMgr.init(AppSettings.classicLightsScale, AppSettings.useSound, AppSettings.classicLightsOrientation,
   AppSettings.lightsModType, AppSettings.sendChatMessage, AppSettings.use3DLights, SERVER_MODE)
