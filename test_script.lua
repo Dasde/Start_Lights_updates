@@ -1499,13 +1499,16 @@ local function initApp()
       ---@diagnostic disable-next-line: missing-return
     end
   end)
+
   ac.checkAdminPrivileges()
   if sim.isReplayActive then
     reloadReplayData()
   end
+  initialized = true
 end
 
 function script.windowCompetitionMode(dt)
+  if not initialized then return end
   miniHUDrunning = true
   if not (sim.isAdmin or verifySessionID(ac.getCar(0).sessionID)) then
     if SLightsAppConnection.isAdmin then
@@ -1665,6 +1668,7 @@ function script.windowContentCompetitionMode(dt)
 end
 
 function script.windowSettings(dt)
+  if not initialized then return end
   miniHUDrunning = false
   if SLightsAppConnection.competitionMode then
     ui.pushFont(ui.Font.Huge)
@@ -2013,6 +2017,7 @@ function script.resizeWindowMain()
 end
 
 function script.windowMain(dt)
+  if not initialized then return end
   miniHUDrunning = false
   if (slMgr.isStartLightsActive() or slMgr.isYellowBlinking()) then
     script.drawUI(dt)
@@ -2107,6 +2112,7 @@ function script.drawUI(dt)
 end
 
 function script.update(dt)
+  if not initialized then return end
   if SLightsAppConnection.appConnected and SERVER_MODE then
     if slMgr.trackHasLightMesh() then
       slMgr.disposeLightMesh()
